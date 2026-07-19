@@ -1,0 +1,67 @@
+# Gradle files
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/**/build/
+
+# Local configuration file (sdk path, etc.)
+local.properties
+
+# Log/OS files
+.DS_Store
+Thumbs.db
+*.log
+
+# Android Studio / IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+.navigation/
+captures/
+*.hprof
+
+# Kotlin / Java compiled files
+*.class
+*.jar
+*.war
+*.ear
+
+# Generated files
+gen/
+out/
+
+# Gradle signing/keystore files
+*.jks
+*.keystore
+*.p12
+*.key
+
+# APK / AAB / mapping outputs
+*.apk
+*.ap_
+*.aab
+*.dex
+mapping.txt
+
+# External native build folder
+cmake/
+.cxx/
+
+# Version control
+*.orig
+
+# JetBrains user-specific
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# NDK
+obj/
+
+# Temporary files
+*.tmp
+*.swp
+*~

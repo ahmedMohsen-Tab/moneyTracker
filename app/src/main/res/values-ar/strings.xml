@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">متتبع المال</string>
+    <string name="language">اللغة</string>
+    <string name="language_system">النظام</string>
+    <string name="language_english">English</string>
+    <string name="language_arabic">العربية</string>
+</resources>

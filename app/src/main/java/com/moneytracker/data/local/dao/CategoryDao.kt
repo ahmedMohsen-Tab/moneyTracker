@@ -16,6 +16,12 @@ interface CategoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(categories: List<CategoryEntity>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(category: CategoryEntity)
+
     @Query("SELECT * FROM categories WHERE id = :id LIMIT 1")
     suspend fun getById(id: Int): CategoryEntity?
+
+    @Query("SELECT COALESCE(MAX(id), 0) FROM categories")
+    suspend fun getMaxId(): Int
 }

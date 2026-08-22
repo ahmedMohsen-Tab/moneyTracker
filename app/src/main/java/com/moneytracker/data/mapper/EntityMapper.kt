@@ -19,6 +19,13 @@ fun CategoryEntity.toCategory(): Category = Category(
     color = color
 )
 
+fun Category.toEntity(): CategoryEntity = CategoryEntity(
+    id = id,
+    name = name,
+    iconName = iconName,
+    color = color
+)
+
 fun ExpenseWithCategory.toExpense(): Expense = Expense(
     id = expense.id,
     amount = expense.amount,

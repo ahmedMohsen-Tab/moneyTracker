@@ -21,6 +21,7 @@ fun CategoryDropdown(
     categories: List<Category>,
     selectedCategory: Category,
     onCategorySelected: (Category) -> Unit,
+    onOtherSelected: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -52,6 +53,13 @@ fun CategoryDropdown(
                     }
                 )
             }
+            DropdownMenuItem(
+                text = { Text("Other\u2026") },
+                onClick = {
+                    expanded = false
+                    onOtherSelected()
+                }
+            )
         }
     }
 }

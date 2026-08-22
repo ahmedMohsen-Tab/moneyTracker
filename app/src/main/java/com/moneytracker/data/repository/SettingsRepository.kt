@@ -31,9 +31,11 @@ class SettingsRepository @Inject constructor(
 
     val currency = userPreferences.currency
     val theme = userPreferences.theme
+    val language = userPreferences.language
 
     suspend fun setCurrency(currency: String) = userPreferences.setCurrency(currency)
     suspend fun setTheme(theme: String) = userPreferences.setTheme(theme)
+    suspend fun setLanguage(tag: String) = userPreferences.setLanguage(tag)
 
     suspend fun exportToCsv(uri: Uri) = withContext(Dispatchers.IO) {
         context.contentResolver.openOutputStream(uri)?.use { outputStream ->

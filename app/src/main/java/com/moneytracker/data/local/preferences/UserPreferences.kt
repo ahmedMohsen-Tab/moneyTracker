@@ -29,6 +29,10 @@ class UserPreferences @Inject constructor(
         preferences[THEME_KEY] ?: "System"
     }
 
+    val language: Flow<String> = dataStore.data.map { preferences ->
+        preferences[LANGUAGE_KEY] ?: "system"
+    }
+
     suspend fun setCurrency(currency: String) {
         dataStore.edit { preferences ->
             preferences[CURRENCY_KEY] = currency
@@ -41,8 +45,15 @@ class UserPreferences @Inject constructor(
         }
     }
 
+    suspend fun setLanguage(tag: String) {
+        dataStore.edit { preferences ->
+            preferences[LANGUAGE_KEY] = tag
+        }
+    }
+
     companion object {
         private val CURRENCY_KEY = stringPreferencesKey("currency")
         private val THEME_KEY = stringPreferencesKey("theme")
+        private val LANGUAGE_KEY = stringPreferencesKey("language")
     }
 }

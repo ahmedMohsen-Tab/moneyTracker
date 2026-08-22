@@ -30,7 +30,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.moneytracker.R
+import com.moneytracker.util.LocaleHelper
 import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,6 +43,7 @@ fun SettingsScreen(
 ) {
     val currency by viewModel.currency.collectAsState()
     val theme by viewModel.theme.collectAsState()
+    val locale by viewModel.locale.collectAsState()
     val context = LocalContext.current
     var showResetDialog by remember { mutableStateOf(false) }
 
@@ -94,6 +98,22 @@ fun SettingsScreen(
                         selected = theme == option,
                         onClick = { viewModel.setTheme(option) },
                         label = { Text(option) }
+                    )
+                }
+            }
+
+            Text(stringResource(R.string.language), style = MaterialTheme.typography.headlineSmall)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                val options = listOf(
+                    LocaleHelper.SYSTEM to stringResource(R.string.language_system),
+                    LocaleHelper.ENGLISH to stringResource(R.string.language_english),
+                    LocaleHelper.ARABIC to stringResource(R.string.language_arabic)
+                )
+                options.forEach { (tag, label) ->
+                    FilterChip(
+                        selected = locale == tag,
+                        onClick = { viewModel.setLocale(tag) },
+                        label = { Text(label) }
                     )
                 }
             }

@@ -30,6 +30,12 @@ class SettingsViewModel @Inject constructor(
         "System"
     )
 
+    val locale: StateFlow<String> = settingsRepository.language.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        "system"
+    )
+
     private val _events = MutableSharedFlow<SettingsEvent>()
     val events = _events.asSharedFlow()
 
@@ -42,6 +48,12 @@ class SettingsViewModel @Inject constructor(
     fun setTheme(theme: String) {
         viewModelScope.launch {
             settingsRepository.setTheme(theme)
+        }
+    }
+
+    fun setLocale(tag: String) {
+        viewModelScope.launch {
+            settingsRepository.setLanguage(tag)
         }
     }
 

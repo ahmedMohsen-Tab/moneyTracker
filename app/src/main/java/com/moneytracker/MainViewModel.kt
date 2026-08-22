@@ -19,4 +19,10 @@ class MainViewModel @Inject constructor(
         SharingStarted.WhileSubscribed(5000),
         "System"
     )
+
+    val locale: StateFlow<String> = settingsRepository.language.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        "system"
+    )
 }

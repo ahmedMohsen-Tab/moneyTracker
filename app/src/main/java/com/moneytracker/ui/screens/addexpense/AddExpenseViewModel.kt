@@ -119,6 +119,62 @@ class AddExpenseViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(isIncome = isIncome)
     }
 
+    fun onOtherCategorySelected() {
+        _uiState.update { state ->
+            state.copy(
+                showNewCategoryDialog = true,
+                newCategoryName = if (state.selectedCategory == Category.default) "" else state.newCategoryName
+            )
+        }
+    }
+
+    fun updateNewCategoryName(name: String) {
+        _uiState.update { it.copy(newCategoryName = name) }
+    }
+
+    fun dismissNewCategoryDialog() {
+        _uiState.update { it.copy(showNewCategoryDialog = false, newCategoryName = "") }
+    }
+
+    fun confirmNewCategory() {
+        val trimmed = _uiState.value.newCategoryName.trim()
+        if (trimmed.isEmpty()) {
+            viewModelScope.launch {
+                _events.emit(AddExpenseEvent.ShowError("Category name cannot be empty"))
+            }
+            return
+        }
+        val currentCategories = _uiState.value.categories
+        if (currentCategories.any { it.name.equals(trimmed, ignoreCase = true) }) {
+            viewModelScope.launch {
+                _events.emit(AddExpenseEvent.ShowError("Category already exists"))
+            }
+            return
+        }
+        viewModelScope.launch {
+            try {
+                val newId = categoryRepository.getMaxCategoryId() + 1
+                val newCategory = Category(
+                    id = newId,
+                    name = trimmed,
+                    iconName = Category.default.iconName,
+                    color = Category.default.color
+                )
+                categoryRepository.insertCategory(newCategory)
+                _uiState.update {
+                    it.copy(
+                        categories = currentCategories + newCategory,
+                        selectedCategory = newCategory,
+                        showNewCategoryDialog = false,
+                        newCategoryName = ""
+                    )
+                }
+            } catch (e: Exception) {
+                _events.emit(AddExpenseEvent.ShowError(e.message ?: "Failed to add category"))
+            }
+        }
+    }
+
     fun save() {
         viewModelScope.launch {
             val state = _uiState.value
@@ -169,7 +225,9 @@ class AddExpenseViewModel @Inject constructor(
         val isIncome: Boolean = false,
         val isEdit: Boolean = false,
         val editId: Long = 0,
-        val categories: List<Category> = emptyList()
+        val categories: List<Category> = emptyList(),
+        val showNewCategoryDialog: Boolean = false,
+        val newCategoryName: String = ""
     )
 
     sealed class AddExpenseEvent {

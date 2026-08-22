@@ -14,6 +14,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,6 +25,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -127,7 +129,8 @@ fun AddExpenseScreen(
                 CategoryDropdown(
                     categories = uiState.categories,
                     selectedCategory = uiState.selectedCategory,
-                    onCategorySelected = { viewModel.updateCategory(it) }
+                    onCategorySelected = { viewModel.updateCategory(it) },
+                    onOtherSelected = { viewModel.onOtherCategorySelected() }
                 )
             }
 
@@ -190,6 +193,32 @@ fun AddExpenseScreen(
                     Text("Save")
                 }
             }
+        }
+
+        if (uiState.showNewCategoryDialog) {
+            AlertDialog(
+                onDismissRequest = { viewModel.dismissNewCategoryDialog() },
+                title = { Text("New Category") },
+                text = {
+                    OutlinedTextField(
+                        value = uiState.newCategoryName,
+                        onValueChange = { viewModel.updateNewCategoryName(it) },
+                        label = { Text("Category name") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.confirmNewCategory() }) {
+                        Text("Save")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { viewModel.dismissNewCategoryDialog() }) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
     }
 }

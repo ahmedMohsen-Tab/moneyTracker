@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.moneytracker.data.local.AppDatabase
 import com.moneytracker.data.local.dao.BudgetDao
+import com.moneytracker.data.local.dao.CategoryBudgetDao
 import com.moneytracker.data.local.dao.CategoryDao
 import com.moneytracker.data.local.dao.ExpenseDao
 import com.moneytracker.data.local.dao.IncomeDao
@@ -23,6 +24,26 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
     }
 }
 
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Recurring transactions: optional rule + group id for both expenses and incomes
+        db.execSQL("ALTER TABLE expenses ADD COLUMN recurrenceRule TEXT")
+        db.execSQL("ALTER TABLE expenses ADD COLUMN recurrenceGroupId TEXT")
+        db.execSQL("ALTER TABLE incomes ADD COLUMN recurrenceRule TEXT")
+        db.execSQL("ALTER TABLE incomes ADD COLUMN recurrenceGroupId TEXT")
+        // Per-category budgets
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS category_budgets (
+                categoryId INTEGER NOT NULL PRIMARY KEY,
+                monthlyLimit REAL NOT NULL,
+                currency TEXT NOT NULL
+            )
+            """.trimIndent()
+        )
+    }
+}
+
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
@@ -38,7 +59,7 @@ object DatabaseModule {
             AppDatabase::class.java,
             "money_tracker.db"
         )
-            .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
             .addCallback(callback)
             .build()
     }
@@ -54,4 +75,7 @@ object DatabaseModule {
 
     @Provides
     fun provideCategoryDao(database: AppDatabase): CategoryDao = database.categoryDao()
+
+    @Provides
+    fun provideCategoryBudgetDao(database: AppDatabase): CategoryBudgetDao = database.categoryBudgetDao()
 }

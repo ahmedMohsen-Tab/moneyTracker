@@ -34,9 +34,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.moneytracker.R
 import com.moneytracker.ui.components.AmountInput
 import com.moneytracker.ui.components.CategoryDropdown
 import com.moneytracker.ui.components.DatePickerField
@@ -75,16 +77,16 @@ fun AddExpenseScreen(
                 title = {
                     Text(
                         when {
-                            uiState.isEdit && uiState.isIncome -> "Edit Income"
-                            uiState.isEdit -> "Edit Expense"
-                            uiState.isIncome -> "Add Income"
-                            else -> "Add Expense"
+                            uiState.isEdit && uiState.isIncome -> stringResource(R.string.edit_income_title)
+                            uiState.isEdit -> stringResource(R.string.edit_expense_title)
+                            uiState.isIncome -> stringResource(R.string.add_income_title)
+                            else -> stringResource(R.string.add_expense_title)
                         }
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 }
             )
@@ -108,14 +110,14 @@ fun AddExpenseScreen(
                         modifier = Modifier.weight(1f),
                         enabled = uiState.isIncome
                     ) {
-                        Text("Expense")
+                        Text(stringResource(R.string.add_expense_toggle_expense))
                     }
                     Button(
                         onClick = { viewModel.toggleIncome(true) },
                         modifier = Modifier.weight(1f),
                         enabled = !uiState.isIncome
                     ) {
-                        Text("Income")
+                        Text(stringResource(R.string.add_expense_toggle_income))
                     }
                 }
             }
@@ -137,7 +139,7 @@ fun AddExpenseScreen(
             OutlinedTextField(
                 value = uiState.description,
                 onValueChange = { viewModel.updateDescription(it) },
-                label = { Text("Description (optional)") },
+                label = { Text(stringResource(R.string.add_expense_description)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -151,7 +153,7 @@ fun AddExpenseScreen(
                 onTimeSelected = { viewModel.updateTime(it) }
             )
 
-            Text("Wallet", style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.add_expense_wallet), style = MaterialTheme.typography.bodyMedium)
             Row(modifier = Modifier.selectableGroup()) {
                 listOf("Cash", "Bank", "Credit Card").forEach { wallet ->
                     Row(
@@ -184,13 +186,13 @@ fun AddExpenseScreen(
                     onClick = onNavigateBack,
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.add_expense_cancel))
                 }
                 Button(
                     onClick = { viewModel.save() },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Save")
+                    Text(stringResource(R.string.add_expense_save))
                 }
             }
         }
@@ -198,24 +200,24 @@ fun AddExpenseScreen(
         if (uiState.showNewCategoryDialog) {
             AlertDialog(
                 onDismissRequest = { viewModel.dismissNewCategoryDialog() },
-                title = { Text("New Category") },
+                title = { Text(stringResource(R.string.add_expense_new_category)) },
                 text = {
                     OutlinedTextField(
                         value = uiState.newCategoryName,
                         onValueChange = { viewModel.updateNewCategoryName(it) },
-                        label = { Text("Category name") },
+                        label = { Text(stringResource(R.string.add_expense_new_category_name)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                 },
                 confirmButton = {
                     TextButton(onClick = { viewModel.confirmNewCategory() }) {
-                        Text("Save")
+                        Text(stringResource(R.string.add_expense_save))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { viewModel.dismissNewCategoryDialog() }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.add_expense_cancel))
                     }
                 }
             )

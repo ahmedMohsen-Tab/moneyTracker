@@ -3,7 +3,11 @@ package com.moneytracker.ui.screens.settings
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.moneytracker.data.repository.CategoryBudgetRepository
+import com.moneytracker.data.repository.CategoryRepository
 import com.moneytracker.data.repository.SettingsRepository
+import com.moneytracker.domain.model.Category
+import com.moneytracker.domain.model.CategoryBudget
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,7 +19,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val categoryBudgetRepository: CategoryBudgetRepository,
+    categoryRepository: CategoryRepository
 ) : ViewModel() {
 
     val currency: StateFlow<String> = settingsRepository.currency.stateIn(
@@ -36,6 +42,24 @@ class SettingsViewModel @Inject constructor(
         "system"
     )
 
+    val dailySummaryEnabled: StateFlow<Boolean> = settingsRepository.dailySummaryEnabled.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        true
+    )
+
+    val categoryBudgets: StateFlow<List<CategoryBudget>> = categoryBudgetRepository.getAll().stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        emptyList()
+    )
+
+    val categories: StateFlow<List<Category>> = categoryRepository.getAllCategories().stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        emptyList()
+    )
+
     private val _events = MutableSharedFlow<SettingsEvent>()
     val events = _events.asSharedFlow()
 
@@ -54,6 +78,24 @@ class SettingsViewModel @Inject constructor(
     fun setLocale(tag: String) {
         viewModelScope.launch {
             settingsRepository.setLanguage(tag)
+        }
+    }
+
+    fun setDailySummaryEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setDailySummaryEnabled(enabled)
+        }
+    }
+
+    fun setCategoryBudget(categoryId: Int, limit: Double, currency: String) {
+        viewModelScope.launch {
+            categoryBudgetRepository.upsert(CategoryBudget(categoryId, limit, currency))
+        }
+    }
+
+    fun clearCategoryBudget(categoryId: Int) {
+        viewModelScope.launch {
+            categoryBudgetRepository.delete(categoryId)
         }
     }
 

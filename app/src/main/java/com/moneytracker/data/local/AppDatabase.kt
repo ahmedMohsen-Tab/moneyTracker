@@ -6,10 +6,12 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.moneytracker.data.local.dao.BudgetDao
+import com.moneytracker.data.local.dao.CategoryBudgetDao
 import com.moneytracker.data.local.dao.CategoryDao
 import com.moneytracker.data.local.dao.ExpenseDao
 import com.moneytracker.data.local.dao.IncomeDao
 import com.moneytracker.data.local.entity.BudgetEntity
+import com.moneytracker.data.local.entity.CategoryBudgetEntity
 import com.moneytracker.data.local.entity.CategoryEntity
 import com.moneytracker.data.local.entity.ExpenseEntity
 import com.moneytracker.data.local.entity.IncomeEntity
@@ -26,9 +28,10 @@ import javax.inject.Provider
         ExpenseEntity::class,
         IncomeEntity::class,
         BudgetEntity::class,
-        CategoryEntity::class
+        CategoryEntity::class,
+        CategoryBudgetEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -36,6 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun incomeDao(): IncomeDao
     abstract fun budgetDao(): BudgetDao
     abstract fun categoryDao(): CategoryDao
+    abstract fun categoryBudgetDao(): CategoryBudgetDao
 
     class Callback @Inject constructor(
         @ApplicationContext private val context: Context,

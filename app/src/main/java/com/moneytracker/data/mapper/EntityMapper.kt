@@ -7,6 +7,7 @@ import com.moneytracker.domain.model.Budget
 import com.moneytracker.domain.model.Category
 import com.moneytracker.domain.model.Expense
 import com.moneytracker.domain.model.Income
+import com.moneytracker.domain.model.RecurrenceRule
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -33,7 +34,9 @@ fun ExpenseWithCategory.toExpense(): Expense = Expense(
     description = expense.description,
     date = LocalDate.parse(expense.date),
     time = LocalTime.parse(expense.time),
-    wallet = expense.wallet
+    wallet = expense.wallet,
+    recurrenceRule = RecurrenceRule.decode(expense.recurrenceRule),
+    recurrenceGroupId = expense.recurrenceGroupId
 )
 
 fun Expense.toEntity(): com.moneytracker.data.local.entity.ExpenseEntity =
@@ -45,7 +48,9 @@ fun Expense.toEntity(): com.moneytracker.data.local.entity.ExpenseEntity =
         date = date.toString(),
         time = time.toString(),
         timestamp = LocalDateTime.of(date, time).toEpochSecond(ZoneOffset.UTC),
-        wallet = wallet
+        wallet = wallet,
+        recurrenceRule = recurrenceRule?.encode(),
+        recurrenceGroupId = recurrenceGroupId
     )
 
 fun IncomeEntity.toIncome(): Income = Income(
@@ -54,7 +59,9 @@ fun IncomeEntity.toIncome(): Income = Income(
     description = description,
     date = LocalDate.parse(date),
     time = LocalTime.parse(time),
-    wallet = wallet
+    wallet = wallet,
+    recurrenceRule = RecurrenceRule.decode(recurrenceRule),
+    recurrenceGroupId = recurrenceGroupId
 )
 
 fun Income.toEntity(): IncomeEntity = IncomeEntity(
@@ -64,7 +71,9 @@ fun Income.toEntity(): IncomeEntity = IncomeEntity(
     date = date.toString(),
     time = time.toString(),
     timestamp = LocalDateTime.of(date, time).toEpochSecond(ZoneOffset.UTC),
-    wallet = wallet
+    wallet = wallet,
+    recurrenceRule = recurrenceRule?.encode(),
+    recurrenceGroupId = recurrenceGroupId
 )
 
 fun com.moneytracker.data.local.entity.BudgetEntity.toBudget(): Budget = Budget(

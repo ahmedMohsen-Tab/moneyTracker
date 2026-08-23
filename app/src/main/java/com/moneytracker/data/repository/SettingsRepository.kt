@@ -3,6 +3,7 @@ package com.moneytracker.data.repository
 import android.content.Context
 import android.net.Uri
 import com.moneytracker.data.local.dao.BudgetDao
+import com.moneytracker.data.local.dao.CategoryBudgetDao
 import com.moneytracker.data.local.dao.ExpenseDao
 import com.moneytracker.data.local.dao.IncomeDao
 import com.moneytracker.data.local.entity.ExpenseEntity
@@ -26,16 +27,19 @@ class SettingsRepository @Inject constructor(
     private val expenseDao: ExpenseDao,
     private val incomeDao: IncomeDao,
     private val budgetDao: BudgetDao,
+    private val categoryBudgetDao: CategoryBudgetDao,
     @ApplicationContext private val context: Context
 ) {
 
     val currency = userPreferences.currency
     val theme = userPreferences.theme
     val language = userPreferences.language
+    val dailySummaryEnabled = userPreferences.dailySummaryEnabled
 
     suspend fun setCurrency(currency: String) = userPreferences.setCurrency(currency)
     suspend fun setTheme(theme: String) = userPreferences.setTheme(theme)
     suspend fun setLanguage(tag: String) = userPreferences.setLanguage(tag)
+    suspend fun setDailySummaryEnabled(enabled: Boolean) = userPreferences.setDailySummaryEnabled(enabled)
 
     suspend fun exportToCsv(uri: Uri) = withContext(Dispatchers.IO) {
         context.contentResolver.openOutputStream(uri)?.use { outputStream ->
@@ -103,6 +107,7 @@ class SettingsRepository @Inject constructor(
     suspend fun resetAll() {
         budgetDao.deleteAll()
         budgetDao.insert(Budget().toEntity())
+        categoryBudgetDao.deleteAll()
         expenseDao.deleteAll()
         incomeDao.deleteAll()
     }

@@ -12,5 +12,7 @@ data class IncomeEntity(
     val date: String,
     val time: String,
     val timestamp: Long,
-    val wallet: String = "Cash"
+    val wallet: String = "Cash",
+    val recurrenceRule: String? = null,
+    val recurrenceGroupId: String? = null
 )

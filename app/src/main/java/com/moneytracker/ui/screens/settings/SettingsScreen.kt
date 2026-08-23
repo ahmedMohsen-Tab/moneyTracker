@@ -17,7 +17,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -28,11 +30,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import com.moneytracker.R
+import com.moneytracker.domain.model.Category
+import com.moneytracker.domain.model.CategoryBudget
+import com.moneytracker.ui.components.formatCurrency
 import com.moneytracker.util.LocaleHelper
 import androidx.hilt.navigation.compose.hiltViewModel
 
@@ -44,6 +53,9 @@ fun SettingsScreen(
     val currency by viewModel.currency.collectAsState()
     val theme by viewModel.theme.collectAsState()
     val locale by viewModel.locale.collectAsState()
+    val dailySummaryEnabled by viewModel.dailySummaryEnabled.collectAsState()
+    val categoryBudgets by viewModel.categoryBudgets.collectAsState()
+    val categories by viewModel.categories.collectAsState()
     val context = LocalContext.current
     var showResetDialog by remember { mutableStateOf(false) }
 
@@ -70,7 +82,7 @@ fun SettingsScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Settings") }) }
+        topBar = { TopAppBar(title = { Text(stringResource(R.string.settings_title)) }) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -80,7 +92,7 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Currency", style = MaterialTheme.typography.headlineSmall)
+            Text(stringResource(R.string.settings_currency), style = MaterialTheme.typography.headlineSmall)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf("USD", "EUR", "EGP", "SAR", "AED").forEach { code ->
                     FilterChip(
@@ -91,23 +103,28 @@ fun SettingsScreen(
                 }
             }
 
-            Text("Theme", style = MaterialTheme.typography.headlineSmall)
+            Text(stringResource(R.string.settings_theme), style = MaterialTheme.typography.headlineSmall)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("Light", "Dark", "System").forEach { option ->
+                val themeOptions = listOf(
+                    "Light" to stringResource(R.string.settings_theme_light),
+                    "Dark" to stringResource(R.string.settings_theme_dark),
+                    "System" to stringResource(R.string.settings_theme_system)
+                )
+                themeOptions.forEach { (value, label) ->
                     FilterChip(
-                        selected = theme == option,
-                        onClick = { viewModel.setTheme(option) },
-                        label = { Text(option) }
+                        selected = theme == value,
+                        onClick = { viewModel.setTheme(value) },
+                        label = { Text(label) }
                     )
                 }
             }
 
-            Text(stringResource(R.string.language), style = MaterialTheme.typography.headlineSmall)
+            Text(stringResource(R.string.settings_language), style = MaterialTheme.typography.headlineSmall)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 val options = listOf(
-                    LocaleHelper.SYSTEM to stringResource(R.string.language_system),
-                    LocaleHelper.ENGLISH to stringResource(R.string.language_english),
-                    LocaleHelper.ARABIC to stringResource(R.string.language_arabic)
+                    LocaleHelper.SYSTEM to stringResource(R.string.settings_language_system),
+                    LocaleHelper.ENGLISH to stringResource(R.string.settings_language_english),
+                    LocaleHelper.ARABIC to stringResource(R.string.settings_language_arabic)
                 )
                 options.forEach { (tag, label) ->
                     FilterChip(
@@ -118,27 +135,54 @@ fun SettingsScreen(
                 }
             }
 
-            Text("Backup & Restore", style = MaterialTheme.typography.headlineSmall)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.settings_daily_summary))
+                    Text(
+                        text = stringResource(R.string.settings_daily_summary_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = dailySummaryEnabled,
+                    onCheckedChange = { viewModel.setDailySummaryEnabled(it) }
+                )
+            }
+
+            Text(stringResource(R.string.settings_category_budgets), style = MaterialTheme.typography.headlineSmall)
+            CategoryBudgetsList(
+                budgets = categoryBudgets,
+                categories = categories,
+                currency = currency,
+                onSetBudget = { id, limit -> viewModel.setCategoryBudget(id, limit, currency) },
+                onClear = { viewModel.clearCategoryBudget(it) }
+            )
+
+            Text(stringResource(R.string.settings_backup), style = MaterialTheme.typography.headlineSmall)
             Button(
                 onClick = { exportLauncher.launch("money_tracker_backup.csv") },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Export to CSV")
+                Text(stringResource(R.string.settings_export_csv))
             }
             Button(
                 onClick = { importLauncher.launch(arrayOf("text/csv", "text/plain", "*/*")) },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Import from CSV")
+                Text(stringResource(R.string.settings_import_csv))
             }
 
-            Text("Data", style = MaterialTheme.typography.headlineSmall)
+            Text(stringResource(R.string.settings_data), style = MaterialTheme.typography.headlineSmall)
             Button(
                 onClick = { showResetDialog = true },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
             ) {
-                Text("Reset All Data")
+                Text(stringResource(R.string.settings_reset_all))
             }
         }
     }
@@ -146,8 +190,8 @@ fun SettingsScreen(
     if (showResetDialog) {
         AlertDialog(
             onDismissRequest = { showResetDialog = false },
-            title = { Text("Reset All Data") },
-            text = { Text("This will delete all transactions and reset settings. Are you sure?") },
+            title = { Text(stringResource(R.string.settings_reset_dialog_title)) },
+            text = { Text(stringResource(R.string.settings_reset_dialog_body)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -155,14 +199,81 @@ fun SettingsScreen(
                         showResetDialog = false
                     }
                 ) {
-                    Text("Reset")
+                    Text(stringResource(R.string.settings_reset_confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showResetDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.settings_reset_cancel))
                 }
             }
         )
+    }
+}
+
+@Composable
+private fun CategoryBudgetsList(
+    budgets: List<CategoryBudget>,
+    categories: List<Category>,
+    currency: String,
+    onSetBudget: (Int, Double) -> Unit,
+    onClear: (Int) -> Unit
+) {
+    val visibleCategories = categories.filter { it.name != "Other" }
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        visibleCategories.forEach { category ->
+            val current = budgets.find { it.categoryId == category.id }
+            var text by remember(current) { mutableStateOf(current?.monthlyLimit?.toString().orEmpty()) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(category.name, modifier = Modifier.weight(1f))
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { newValue ->
+                        if (newValue.isEmpty() || newValue.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
+                            text = newValue
+                        }
+                    },
+                    label = { Text(stringResource(R.string.category_budget_set)) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Decimal,
+                        imeAction = ImeAction.Done
+                    ),
+                    modifier = Modifier.weight(1f)
+                )
+                TextButton(
+                    onClick = {
+                        val v = text.toDoubleOrNull()
+                        if (v != null && v > 0) {
+                            onSetBudget(category.id, v)
+                        } else {
+                            onClear(category.id)
+                            text = ""
+                        }
+                    }
+                ) {
+                    Text(stringResource(R.string.add_expense_save))
+                }
+                if (current != null) {
+                    TextButton(onClick = {
+                        onClear(category.id)
+                        text = ""
+                    }) {
+                        Text(stringResource(R.string.category_budget_clear))
+                    }
+                }
+            }
+            if (current != null) {
+                Text(
+                    text = "${formatCurrency(current.monthlyLimit, currency)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
     }
 }

@@ -9,5 +9,7 @@ data class Income(
     val description: String,
     val date: LocalDate,
     val time: LocalTime,
-    val wallet: String = "Cash"
+    val wallet: String = "Cash",
+    val recurrenceRule: RecurrenceRule? = null,
+    val recurrenceGroupId: String? = null
 )

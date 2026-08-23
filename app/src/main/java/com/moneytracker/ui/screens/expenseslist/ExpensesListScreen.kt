@@ -40,8 +40,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.moneytracker.R
 import com.moneytracker.domain.model.Transaction
 import com.moneytracker.domain.model.isExpense
 import com.moneytracker.ui.components.TransactionItem
@@ -75,10 +77,10 @@ fun ExpensesListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Transactions") },
+                title = { Text(stringResource(R.string.transactions_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 }
             )
@@ -94,7 +96,7 @@ fun ExpensesListScreen(
             OutlinedTextField(
                 value = uiState.searchQuery,
                 onValueChange = { viewModel.setSearchQuery(it) },
-                label = { Text("Search") },
+                label = { Text(stringResource(R.string.transactions_search)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -105,12 +107,12 @@ fun ExpensesListScreen(
                 FilterChip(
                     selected = uiState.showExpenses,
                     onClick = { viewModel.toggleExpenses() },
-                    label = { Text("Expenses") }
+                    label = { Text(stringResource(R.string.transactions_filter_expenses)) }
                 )
                 FilterChip(
                     selected = uiState.showIncome,
                     onClick = { viewModel.toggleIncome() },
-                    label = { Text("Income") }
+                    label = { Text(stringResource(R.string.transactions_filter_income)) }
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -121,7 +123,7 @@ fun ExpensesListScreen(
                 FilterChip(
                     selected = uiState.selectedCategoryId == null,
                     onClick = { viewModel.setCategory(null) },
-                    label = { Text("All") }
+                    label = { Text(stringResource(R.string.transactions_filter_all_categories)) }
                 )
                 categories.forEach { category ->
                     FilterChip(
@@ -139,7 +141,7 @@ fun ExpensesListScreen(
                 FilterChip(
                     selected = uiState.selectedMonth == null,
                     onClick = { viewModel.setMonth(null) },
-                    label = { Text("All Months") }
+                    label = { Text(stringResource(R.string.transactions_filter_all_months)) }
                 )
                 months.forEach { month ->
                     FilterChip(
@@ -158,14 +160,16 @@ fun ExpensesListScreen(
                     items = uiState.transactions,
                     key = { "${it.isExpense()}_${it.id}" }
                 ) { transaction ->
+                    val messageText = stringResource(R.string.transactions_deleted)
+                    val actionText = stringResource(R.string.transactions_undo)
                     val dismissState = rememberDismissState(
                         confirmStateChange = { value ->
                             if (value == DismissValue.DismissedToStart) {
                                 viewModel.deleteTransaction(transaction)
                                 scope.launch {
                                     val result = snackbarHostState.showSnackbar(
-                                        message = "Transaction deleted",
-                                        actionLabel = "Undo"
+                                        message = messageText,
+                                        actionLabel = actionText
                                     )
                                     if (result == SnackbarResult.ActionPerformed) {
                                         viewModel.restoreLastDeleted()
@@ -190,7 +194,7 @@ fun ExpensesListScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Delete,
-                                    contentDescription = "Delete",
+                                    contentDescription = stringResource(R.string.transactions_delete),
                                     tint = MaterialTheme.colorScheme.onErrorContainer,
                                     modifier = Modifier.size(28.dp)
                                 )

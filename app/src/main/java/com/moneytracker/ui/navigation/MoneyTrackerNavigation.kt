@@ -16,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import com.moneytracker.R
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -38,9 +40,9 @@ fun MoneyTrackerNavigation() {
     val currentDestination = navBackStackEntry?.destination
 
     val bottomNavItems = listOf(
-        BottomNavItem("Dashboard", Icons.Default.Home, Screen.Dashboard.route),
-        BottomNavItem("Statistics", Icons.Default.TrendingUp, Screen.Statistics.route),
-        BottomNavItem("Settings", Icons.Default.Settings, Screen.Settings.route)
+        BottomNavItem(R.string.nav_dashboard, Icons.Default.Home, Screen.Dashboard.route),
+        BottomNavItem(R.string.nav_statistics, Icons.Default.TrendingUp, Screen.Statistics.route),
+        BottomNavItem(R.string.nav_settings, Icons.Default.Settings, Screen.Settings.route)
     )
 
     val showBottomBar = currentDestination?.route in bottomNavItems.map { it.route }
@@ -51,8 +53,8 @@ fun MoneyTrackerNavigation() {
                 NavigationBar {
                     bottomNavItems.forEach { item ->
                         NavigationBarItem(
-                            icon = { Icon(item.icon, contentDescription = item.label) },
-                            label = { Text(item.label) },
+                            icon = { Icon(item.icon, contentDescription = stringResource(item.labelRes)) },
+                            label = { Text(stringResource(item.labelRes)) },
                             selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
                             onClick = {
                                 navController.navigate(item.route) {
@@ -73,7 +75,7 @@ fun MoneyTrackerNavigation() {
                 FloatingActionButton(
                     onClick = { navController.navigate(Screen.AddExpense.route) }
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add")
+                    Icon(Icons.Default.Add, contentDescription = stringResource(R.string.nav_add))
                 }
             }
         }
@@ -126,7 +128,7 @@ fun MoneyTrackerNavigation() {
 }
 
 private data class BottomNavItem(
-    val label: String,
+    @androidx.annotation.StringRes val labelRes: Int,
     val icon: ImageVector,
     val route: String
 )

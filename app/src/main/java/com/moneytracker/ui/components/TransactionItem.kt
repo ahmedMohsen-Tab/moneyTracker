@@ -27,7 +27,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.moneytracker.R
 import com.moneytracker.domain.model.Transaction
 import com.moneytracker.domain.model.displaySign
 import com.moneytracker.domain.model.isExpense
@@ -42,9 +44,9 @@ fun TransactionItem(
 ) {
     val title = when (transaction) {
         is Transaction.ExpenseTransaction -> transaction.category.name
-        is Transaction.IncomeTransaction -> "Income"
+        is Transaction.IncomeTransaction -> stringResource(R.string.transactions_income_title)
     }
-    val description = transaction.description.ifBlank { "No description" }
+    val description = transaction.description.ifBlank { stringResource(R.string.transactions_no_description) }
     val icon = when (transaction) {
         is Transaction.ExpenseTransaction -> categoryIcon(transaction.category.iconName)
         is Transaction.IncomeTransaction -> Icons.Default.AccessTime

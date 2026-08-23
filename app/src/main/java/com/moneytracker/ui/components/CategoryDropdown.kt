@@ -13,6 +13,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.moneytracker.R
 import com.moneytracker.domain.model.Category
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,7 +36,7 @@ fun CategoryDropdown(
             value = selectedCategory.name,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Category") },
+            label = { Text(stringResource(R.string.add_expense_category)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -54,7 +56,7 @@ fun CategoryDropdown(
                 )
             }
             DropdownMenuItem(
-                text = { Text("Other\u2026") },
+                text = { Text(stringResource(R.string.add_expense_other)) },
                 onClick = {
                     expanded = false
                     onOtherSelected()

@@ -3,6 +3,7 @@ package com.moneytracker.data.local.preferences
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -33,6 +34,10 @@ class UserPreferences @Inject constructor(
         preferences[LANGUAGE_KEY] ?: "system"
     }
 
+    val dailySummaryEnabled: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[DAILY_SUMMARY_KEY] ?: true
+    }
+
     suspend fun setCurrency(currency: String) {
         dataStore.edit { preferences ->
             preferences[CURRENCY_KEY] = currency
@@ -51,9 +56,16 @@ class UserPreferences @Inject constructor(
         }
     }
 
+    suspend fun setDailySummaryEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[DAILY_SUMMARY_KEY] = enabled
+        }
+    }
+
     companion object {
         private val CURRENCY_KEY = stringPreferencesKey("currency")
         private val THEME_KEY = stringPreferencesKey("theme")
         private val LANGUAGE_KEY = stringPreferencesKey("language")
+        private val DAILY_SUMMARY_KEY = booleanPreferencesKey("daily_summary")
     }
 }

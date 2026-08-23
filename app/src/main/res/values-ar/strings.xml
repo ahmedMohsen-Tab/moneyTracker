@@ -1,8 +1,166 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- App identity -->
     <string name="app_name">متتبع المال</string>
-    <string name="language">اللغة</string>
-    <string name="language_system">النظام</string>
-    <string name="language_english">English</string>
-    <string name="language_arabic">العربية</string>
+
+    <!-- Navigation / top-level -->
+    <string name="nav_dashboard">الرئيسية</string>
+    <string name="nav_statistics">الإحصائيات</string>
+    <string name="nav_settings">الإعدادات</string>
+    <string name="nav_add">إضافة</string>
+    <string name="action_back">رجوع</string>
+
+    <!-- Greetings -->
+    <string name="greeting_morning">صباح الخير 👋</string>
+    <string name="greeting_afternoon">مساء النور 👋</string>
+    <string name="greeting_evening">مساء الخير 👋</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_previous_month">الشهر السابق</string>
+    <string name="dashboard_next_month">الشهر التالي</string>
+    <string name="dashboard_balance_title">الرصيد الحالي</string>
+    <string name="dashboard_wallet_cash">نقدًا</string>
+    <string name="dashboard_wallet_bank">البنك</string>
+    <string name="dashboard_wallet_card">بطاقة</string>
+    <string name="dashboard_spent_today">مُنفَق اليوم</string>
+    <string name="dashboard_spent_this_month">مُنفَق هذا الشهر</string>
+    <string name="dashboard_remaining">المتبقي</string>
+    <string name="dashboard_warning_80">استخدمت 80%% من ميزانيتك الشهرية.</string>
+    <string name="dashboard_warning_90">استخدمت 90%% من ميزانيتك الشهرية.</string>
+    <string name="dashboard_warning_100">لقد تجاوزت ميزانيتك الشهرية!</string>
+    <string name="dashboard_recent_transactions">أحدث المعاملات</string>
+    <string name="dashboard_view_all">عرض الكل</string>
+    <string name="dashboard_current_month">الشهر الحالي</string>
+    <string name="dashboard_no_budget">لا توجد ميزانية</string>
+    <string name="dashboard_category_budgets">ميزانيات الفئات</string>
+    <string name="dashboard_recurring_upcoming">المعاملات المتكررة القادمة</string>
+    <string name="dashboard_recurring_none">لا توجد معاملات متكررة قادمة</string>
+    <string name="dashboard_recurring_next_in">التالي خلال %1$d يوم</string>
+
+    <!-- Add / Edit Transaction -->
+    <string name="add_expense_title">إضافة مصروف</string>
+    <string name="add_income_title">إضافة دخل</string>
+    <string name="edit_expense_title">تعديل المصروف</string>
+    <string name="edit_income_title">تعديل الدخل</string>
+    <string name="add_expense_toggle_expense">مصروف</string>
+    <string name="add_expense_toggle_income">دخل</string>
+    <string name="add_expense_amount">المبلغ</string>
+    <string name="add_expense_category">الفئة</string>
+    <string name="add_expense_other">أخرى…</string>
+    <string name="add_expense_description">الوصف (اختياري)</string>
+    <string name="add_expense_date">التاريخ</string>
+    <string name="add_expense_time">الوقت</string>
+    <string name="add_expense_wallet">المحفظة</string>
+    <string name="add_expense_repeat">تكرار</string>
+    <string name="add_expense_repeat_never">بدون</string>
+    <string name="add_expense_repeat_daily">يوميًا</string>
+    <string name="add_expense_repeat_weekly">أسبوعيًا</string>
+    <string name="add_expense_repeat_monthly">شهريًا</string>
+    <string name="add_expense_repeat_yearly">سنويًا</string>
+    <string name="add_expense_repeat_dialog_title">تكرار كل</string>
+    <string name="add_expense_repeat_dialog_dow">يوم الأسبوع</string>
+    <string name="add_expense_repeat_dialog_dom">يوم الشهر</string>
+    <string name="add_expense_save">حفظ</string>
+    <string name="add_expense_cancel">إلغاء</string>
+    <string name="add_expense_new_category">فئة جديدة</string>
+    <string name="add_expense_new_category_name">اسم الفئة</string>
+    <string name="add_expense_error_amount_zero">يجب أن يكون المبلغ أكبر من صفر</string>
+    <string name="add_expense_error_category_empty">لا يمكن ترك اسم الفئة فارغًا</string>
+    <string name="add_expense_error_category_exists">الفئة موجودة بالفعل</string>
+    <string name="add_expense_error_category_failed">فشل إضافة الفئة</string>
+    <string name="add_expense_repeat_indicator">متكرر</string>
+
+    <!-- Transactions list -->
+    <string name="transactions_title">المعاملات</string>
+    <string name="transactions_search">بحث</string>
+    <string name="transactions_filter_all_months">كل الأشهر</string>
+    <string name="transactions_filter_all_categories">كل الفئات</string>
+    <string name="transactions_filter_expenses">المصروفات</string>
+    <string name="transactions_filter_income">الدخل</string>
+    <string name="transactions_deleted">تم حذف المعاملة</string>
+    <string name="transactions_undo">تراجع</string>
+    <string name="transactions_delete">حذف</string>
+    <string name="transactions_no_description">لا يوجد وصف</string>
+    <string name="transactions_income_title">دخل</string>
+
+    <!-- Statistics -->
+    <string name="statistics_title">الإحصائيات</string>
+    <string name="statistics_monthly_summary">الملخص الشهري</string>
+    <string name="statistics_total_income">إجمالي الدخل</string>
+    <string name="statistics_total_expenses">إجمالي المصروفات</string>
+    <string name="statistics_remaining">المتبقي</string>
+    <string name="statistics_avg_daily">المعدل اليومي</string>
+    <string name="statistics_transactions">المعاملات</string>
+    <string name="statistics_highest_day">أعلى يوم</string>
+    <string name="statistics_highest_category">أعلى فئة</string>
+    <string name="statistics_highest_category_value">%1$s: %2$s</string>
+    <string name="statistics_trend">اتجاه الإنفاق الشهري</string>
+    <string name="statistics_by_category">الإنفاق حسب الفئة</string>
+    <string name="statistics_weekly">الإنفاق الأسبوعي</string>
+
+    <!-- Settings -->
+    <string name="settings_title">الإعدادات</string>
+    <string name="settings_currency">العملة</string>
+    <string name="settings_theme">السمة</string>
+    <string name="settings_theme_light">فاتح</string>
+    <string name="settings_theme_dark">داكن</string>
+    <string name="settings_theme_system">النظام</string>
+    <string name="settings_language">اللغة</string>
+    <string name="settings_language_system">النظام</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_arabic">العربية</string>
+    <string name="settings_backup">النسخ الاحتياطي والاستعادة</string>
+    <string name="settings_export_csv">تصدير إلى CSV</string>
+    <string name="settings_import_csv">استيراد من CSV</string>
+    <string name="settings_data">البيانات</string>
+    <string name="settings_reset_all">إعادة تعيين جميع البيانات</string>
+    <string name="settings_reset_dialog_title">إعادة تعيين جميع البيانات</string>
+    <string name="settings_reset_dialog_body">سيؤدي ذلك إلى حذف جميع المعاملات وإعادة تعيين الإعدادات. هل أنت متأكد؟</string>
+    <string name="settings_reset_confirm">إعادة تعيين</string>
+    <string name="settings_reset_cancel">إلغاء</string>
+    <string name="settings_category_budgets">ميزانيات الفئات</string>
+    <string name="settings_category_budgets_none">اضغط + لتعيين ميزانية فئة</string>
+    <string name="settings_category_budget_set">تعيين الميزانية</string>
+    <string name="settings_daily_summary">إشعار الملخص اليومي</string>
+    <string name="settings_daily_summary_desc">إرسال إشعار في الساعة 8 مساءً بإنفاق اليوم</string>
+    <string name="settings_export_success">تم التصدير بنجاح</string>
+    <string name="settings_export_failed">فشل التصدير</string>
+    <string name="settings_import_success">تم الاستيراد بنجاح</string>
+    <string name="settings_import_failed">فشل الاستيراد</string>
+    <string name="settings_reset_success">تم إعادة تعيين جميع البيانات</string>
+    <string name="settings_reset_failed">فشلت إعادة التعيين</string>
+
+    <!-- Recurring transactions -->
+    <string name="recurring_section_title">متكرر</string>
+    <string name="recurring_pause">إيقاف مؤقت</string>
+    <string name="recurring_resume">استئناف</string>
+    <string name="recurring_delete">حذف السلسلة</string>
+    <string name="recurring_paused">متوقف مؤقتًا</string>
+
+    <!-- Per-category budgets -->
+    <string name="category_budget_set">تعيين ميزانية شهرية</string>
+    <string name="category_budget_clear">مسح الميزانية</string>
+    <string name="category_budget_no_limit">بدون حد</string>
+    <string name="category_budget_status_ok">في المسار الصحيح</string>
+    <string name="category_budget_status_warning">انتبه</string>
+    <string name="category_budget_status_near_limit">قرب الحد</string>
+    <string name="category_budget_status_over_limit">تجاوز الحد</string>
+    <string name="category_budget_used">%1$s / %2$s</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_daily_name">الملخص اليومي</string>
+    <string name="notification_channel_daily_desc">يعرض إنفاقك اليومي كل مساء.</string>
+    <string name="notification_title_daily">إنفاق اليوم</string>
+    <string name="notification_body_daily_with_budget">أنفقت %1$s من %2$s (%3$d%% من ميزانيتك اليومية).</string>
+    <string name="notification_body_daily_no_budget">أنفقت %1$s اليوم.</string>
+
+    <!-- Widget -->
+    <string name="widget_title">متتبع المال</string>
+    <string name="widget_today">اليوم</string>
+    <string name="widget_this_month">هذا الشهر</string>
+    <string name="widget_quick_add">إضافة سريعة</string>
+    <string name="widget_no_data">لا توجد بيانات</string>
+
+    <!-- Errors / shared -->
+    <string name="error_unknown">خطأ غير معروف</string>
 </resources>

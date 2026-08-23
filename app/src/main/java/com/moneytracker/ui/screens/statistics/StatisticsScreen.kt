@@ -21,8 +21,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.moneytracker.R
 import com.moneytracker.ui.components.BarChartView
 import com.moneytracker.ui.components.LineChartView
 import com.moneytracker.ui.components.PieChartView
@@ -38,7 +40,7 @@ fun StatisticsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Statistics") }
+                title = { Text(stringResource(R.string.statistics_title)) }
             )
         }
     ) { padding ->
@@ -51,7 +53,7 @@ fun StatisticsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Monthly Summary",
+                text = stringResource(R.string.statistics_monthly_summary),
                 style = MaterialTheme.typography.headlineSmall
             )
             Row(
@@ -59,13 +61,13 @@ fun StatisticsScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 SummaryItem(
-                    title = "Total Income",
+                    title = stringResource(R.string.statistics_total_income),
                     amount = uiState.totalIncome,
                     currency = uiState.currency,
                     modifier = Modifier.weight(1f)
                 )
                 SummaryItem(
-                    title = "Total Expenses",
+                    title = stringResource(R.string.statistics_total_expenses),
                     amount = uiState.totalExpenses,
                     currency = uiState.currency,
                     modifier = Modifier.weight(1f)
@@ -76,13 +78,13 @@ fun StatisticsScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 SummaryItem(
-                    title = "Remaining",
+                    title = stringResource(R.string.statistics_remaining),
                     amount = uiState.remainingBalance,
                     currency = uiState.currency,
                     modifier = Modifier.weight(1f)
                 )
                 SummaryItem(
-                    title = "Avg Daily",
+                    title = stringResource(R.string.statistics_avg_daily),
                     amount = uiState.averageDailySpending,
                     currency = uiState.currency,
                     modifier = Modifier.weight(1f)
@@ -93,14 +95,14 @@ fun StatisticsScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 SummaryItem(
-                    title = "Transactions",
+                    title = stringResource(R.string.statistics_transactions),
                     amount = uiState.transactionCount.toDouble(),
                     currency = "",
                     modifier = Modifier.weight(1f),
                     isCount = true
                 )
                 SummaryItem(
-                    title = "Highest Day",
+                    title = stringResource(R.string.statistics_highest_day),
                     amount = uiState.highestSpendingDay?.second ?: 0.0,
                     currency = uiState.currency,
                     modifier = Modifier.weight(1f)
@@ -115,11 +117,11 @@ fun StatisticsScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Highest Category",
+                            text = stringResource(R.string.statistics_highest_category),
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Text(
-                            text = "$name: ${formatCurrency(amount, uiState.currency)}",
+                            text = stringResource(R.string.statistics_highest_category_value, name, formatCurrency(amount, uiState.currency)),
                             style = MaterialTheme.typography.headlineSmall
                         )
                     }
@@ -128,7 +130,7 @@ fun StatisticsScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Monthly Spending Trend",
+                text = stringResource(R.string.statistics_trend),
                 style = MaterialTheme.typography.headlineSmall
             )
             LineChartView(
@@ -138,7 +140,7 @@ fun StatisticsScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Spending by Category",
+                text = stringResource(R.string.statistics_by_category),
                 style = MaterialTheme.typography.headlineSmall
             )
             PieChartView(
@@ -148,7 +150,7 @@ fun StatisticsScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Weekly Spending",
+                text = stringResource(R.string.statistics_weekly),
                 style = MaterialTheme.typography.headlineSmall
             )
             BarChartView(

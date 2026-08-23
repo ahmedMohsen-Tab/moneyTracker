@@ -29,8 +29,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.moneytracker.R
 import com.moneytracker.domain.model.Transaction
 import com.moneytracker.ui.components.BalanceCard
 import com.moneytracker.ui.components.SummaryCard
@@ -40,6 +42,11 @@ import com.moneytracker.ui.components.greeting
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.material.icons.filled.Today
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.ui.graphics.Color
+import com.moneytracker.domain.model.CategoryBudgetUsage
+import com.moneytracker.domain.model.CategoryBudgetStatus
+import com.moneytracker.ui.components.formatCurrency
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +85,7 @@ fun DashboardScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = { viewModel.previousMonth() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous Month")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.dashboard_previous_month))
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         AnimatedContent(
@@ -92,12 +99,12 @@ fun DashboardScreen(
                         }
                         if (selectedMonth != java.time.YearMonth.now()) {
                             IconButton(onClick = { viewModel.resetToCurrentMonth() }) {
-                                Icon(Icons.Default.Today, contentDescription = "Current Month")
+                                Icon(Icons.Default.Today, contentDescription = stringResource(R.string.dashboard_current_month))
                             }
                         }
                     }
                     IconButton(onClick = { viewModel.nextMonth() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next Month")
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = stringResource(R.string.dashboard_next_month))
                     }
                 }
             }
@@ -112,19 +119,19 @@ fun DashboardScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     SummaryCard(
-                        title = "Bank",
+                        title = stringResource(R.string.dashboard_wallet_bank),
                         amount = uiState.bankBalance,
                         currency = uiState.currency,
                         modifier = Modifier.weight(1f)
                     )
                     SummaryCard(
-                        title = "Cash",
+                        title = stringResource(R.string.dashboard_wallet_cash),
                         amount = uiState.cashBalance,
                         currency = uiState.currency,
                         modifier = Modifier.weight(1f)
                     )
                     SummaryCard(
-                        title = "Card",
+                        title = stringResource(R.string.dashboard_wallet_card),
                         amount = uiState.creditCardBalance,
                         currency = uiState.currency,
                         modifier = Modifier.weight(1f)
@@ -137,19 +144,19 @@ fun DashboardScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     SummaryCard(
-                        title = "Spent Today",
+                        title = stringResource(R.string.dashboard_spent_today),
                         amount = uiState.spentToday,
                         currency = uiState.currency,
                         modifier = Modifier.weight(1f)
                     )
                     SummaryCard(
-                        title = "Spent This Month",
+                        title = stringResource(R.string.dashboard_spent_this_month),
                         amount = uiState.spentThisMonth,
                         currency = uiState.currency,
                         modifier = Modifier.weight(1f)
                     )
                     SummaryCard(
-                        title = "Remaining",
+                        title = stringResource(R.string.dashboard_remaining),
                         amount = uiState.remaining,
                         currency = uiState.currency,
                         modifier = Modifier.weight(1f)
@@ -159,9 +166,9 @@ fun DashboardScreen(
             if (uiState.budgetUsage >= 0.8) {
                 item {
                     val message = when {
-                        uiState.budgetUsage >= 1.0 -> "You have exceeded your monthly budget!"
-                        uiState.budgetUsage >= 0.9 -> "You have used 90% of your monthly budget."
-                        else -> "You have used 80% of your monthly budget."
+                        uiState.budgetUsage >= 1.0 -> stringResource(R.string.dashboard_warning_100)
+                        uiState.budgetUsage >= 0.9 -> stringResource(R.string.dashboard_warning_90)
+                        else -> stringResource(R.string.dashboard_warning_80)
                     }
                     Card(
                         colors = CardDefaults.cardColors(
@@ -188,11 +195,22 @@ fun DashboardScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Recent Transactions",
+                        text = stringResource(R.string.dashboard_recent_transactions),
                         style = MaterialTheme.typography.headlineSmall
                     )
                     TextButton(onClick = onViewAll) {
-                        Text("View All")
+                        Text(stringResource(R.string.dashboard_view_all))
+                    }
+                }
+            }
+            if (uiState.categoryBudgetUsages.isNotEmpty()) {
+                item {
+                    Text(
+                        text = stringResource(R.string.dashboard_category_budgets),
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    uiState.categoryBudgetUsages.take(3).forEach { usage ->
+                        CategoryBudgetRow(usage = usage)
                     }
                 }
             }
@@ -207,6 +225,40 @@ fun DashboardScreen(
                     }
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun CategoryBudgetRow(usage: CategoryBudgetUsage) {
+    val color = when (usage.status) {
+        CategoryBudgetStatus.OVER_LIMIT -> MaterialTheme.colorScheme.error
+        CategoryBudgetStatus.NEAR_LIMIT -> MaterialTheme.colorScheme.error
+        CategoryBudgetStatus.WARNING -> MaterialTheme.colorScheme.tertiary
+        CategoryBudgetStatus.OK -> MaterialTheme.colorScheme.primary
+    }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(usage.category.name, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = "${formatCurrency(usage.spent, usage.currency)} / ${formatCurrency(usage.limit, usage.currency)}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            LinearProgressIndicator(
+                progress = { usage.percent.coerceIn(0.0, 1.0).toFloat() },
+                modifier = Modifier.fillMaxWidth(),
+                color = color
+            )
         }
     }
 }

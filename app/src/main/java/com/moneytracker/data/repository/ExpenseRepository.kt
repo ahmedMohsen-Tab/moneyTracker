@@ -25,6 +25,9 @@ class ExpenseRepository @Inject constructor(
     fun getExpensesByMonth(month: String): Flow<List<Expense>> =
         expenseDao.getByMonth(month).map { list -> list.map { it.toExpense() } }
 
+    fun getExpensesByMonthString(month: String): Flow<List<Expense>> =
+        expenseDao.getByMonth(month).map { list -> list.map { it.toExpense() } }
+
     fun getExpensesByCategory(categoryId: Int): Flow<List<Expense>> =
         expenseDao.getByCategory(categoryId).map { list -> list.map { it.toExpense() } }
 

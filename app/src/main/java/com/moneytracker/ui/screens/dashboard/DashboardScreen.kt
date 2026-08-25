@@ -205,12 +205,15 @@ fun DashboardScreen(
             }
             if (uiState.categoryBudgetUsages.isNotEmpty()) {
                 item {
-                    Text(
-                        text = stringResource(R.string.dashboard_category_budgets),
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                    uiState.categoryBudgetUsages.take(3).forEach { usage ->
-                        CategoryBudgetRow(usage = usage)
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(
+                            text = stringResource(R.string.dashboard_category_budgets),
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        uiState.categoryBudgetUsages.take(3).forEach { usage ->
+                            CategoryBudgetRow(usage = usage)
+                        }
                     }
                 }
             }

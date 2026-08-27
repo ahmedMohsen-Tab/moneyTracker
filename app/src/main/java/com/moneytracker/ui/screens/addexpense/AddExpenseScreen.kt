@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -102,24 +103,28 @@ fun AddExpenseScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             if (!uiState.isEdit) {
+                // Two-way mode toggle. The selected chip is filled with the
+                // primary color, the unselected one is outlined — the opposite
+                // of the previous `enabled = !selected` Button layout, which
+                // rendered the currently-active mode as a greyed-out button
+                // and the other mode as bright/clickable, making the screen
+                // look like it had the wrong mode selected on first open.
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Button(
+                    FilterChip(
+                        selected = !uiState.isIncome,
                         onClick = { viewModel.toggleIncome(false) },
-                        modifier = Modifier.weight(1f),
-                        enabled = uiState.isIncome
-                    ) {
-                        Text(stringResource(R.string.add_expense_toggle_expense))
-                    }
-                    Button(
+                        label = { Text(stringResource(R.string.add_expense_toggle_expense)) },
+                        modifier = Modifier.weight(1f)
+                    )
+                    FilterChip(
+                        selected = uiState.isIncome,
                         onClick = { viewModel.toggleIncome(true) },
-                        modifier = Modifier.weight(1f),
-                        enabled = !uiState.isIncome
-                    ) {
-                        Text(stringResource(R.string.add_expense_toggle_income))
-                    }
+                        label = { Text(stringResource(R.string.add_expense_toggle_income)) },
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
 

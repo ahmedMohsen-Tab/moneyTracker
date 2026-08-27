@@ -1,3 +1,12 @@
+/**
+ * State holder for the Settings screen.
+ *
+ * Exposes every preference as a `StateFlow` (via
+ * `settingsRepository.<key>.stateIn(...)`) and groups the destructive /
+ * IO-bound actions (export, import, reset) behind `runOrError` which
+ * catches exceptions and surfaces them as toast events instead of
+ * crashing.
+ */
 package com.moneytracker.ui.screens.settings
 
 import android.net.Uri

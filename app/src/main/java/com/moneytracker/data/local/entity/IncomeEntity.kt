@@ -1,3 +1,12 @@
+/**
+ * Room entity for a single income row.
+ *
+ * Mirrors [ExpenseEntity] structurally (amount, date, time, timestamp,
+ * wallet, recurrence fields). Incomes have no `categoryId` because the
+ * add-screen hides the category picker when in income mode.
+ *
+ * See [ExpenseEntity] for the `timestamp` rationale.
+ */
 package com.moneytracker.data.local.entity
 
 import androidx.room.Entity

@@ -1,3 +1,10 @@
+/**
+ * Schedules / cancels the [DailySummaryWorker] using WorkManager.
+ *
+ * `enable()` enqueues a unique periodic worker with a fresh initial delay
+ * targeting 8 PM tonight. `disable()` cancels it. The unique-work name
+ * ensures re-enabling never creates duplicates.
+ */
 package com.moneytracker.notifications
 
 import android.content.Context

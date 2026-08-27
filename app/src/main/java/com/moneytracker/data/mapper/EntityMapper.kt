@@ -1,3 +1,13 @@
+/**
+ * Two-way mappers between Room entities and the domain models used by the
+ * rest of the app.
+ *
+ * Keeping this layer thin and explicit (one function per direction, no
+ * business logic) means the UI layer never imports anything from
+ * `data.local.entity` — only from `domain.model`. This is enforced by
+ * code review, not by the module structure (everything is one Gradle
+ * module today), so be careful when adding new entities.
+ */
 package com.moneytracker.data.mapper
 
 import com.moneytracker.data.local.entity.CategoryEntity

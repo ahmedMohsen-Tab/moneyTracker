@@ -1,3 +1,21 @@
+/**
+ * `Application` subclass; the root of the Hilt graph.
+ *
+ * Three things happen in `onCreate`:
+ *  1. Locale warm-up: read the saved language from DataStore on the IO
+ *     dispatcher and apply it via [com.moneytracker.util.LocaleHelper] so
+ *     the very first setContent() already renders in the right language.
+ *  2. Daily-summary work: re-enqueue [DailySummaryScheduler] if the user
+ *     previously opted in. Uses the latest preference read; idempotent.
+ *  3. Recurring-transactions work: always enqueue
+ *     [RecurringTransactionsScheduler] (KEEP policy means it's a no-op
+ *     if already pending). Guarantees recurring rows are materialised
+ *     every day even if the user never opens the app.
+ *
+ * All three are launched on the application scope (SupervisorJob +
+ * Dispatchers.IO) so they never block the main thread and one failure
+ * can't cancel the others.
+ */
 package com.moneytracker
 
 import android.app.Application

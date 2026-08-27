@@ -1,3 +1,10 @@
+/**
+ * CoroutineWorker wrapper around
+ * [com.moneytracker.domain.usecase.MaterializeRecurringTransactionsUseCase].
+ *
+ * Scheduled by [RecurringTransactionsScheduler] to run roughly once a
+ * day. Idempotent: re-running it on the same day produces zero new rows.
+ */
 package com.moneytracker.notifications
 
 import android.content.Context

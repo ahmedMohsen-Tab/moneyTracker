@@ -1,3 +1,19 @@
+/**
+ * State holder for the Dashboard screen.
+ *
+ * Composes the dashboard summary use case with the user's selected month
+ * (a flatMapLatest over `_selectedMonth`) and the current "today"
+ * (re-evaluated on each `ON_RESUME` via [onResume]).
+ *
+ * `currency` is exposed separately so it reacts to Settings-screen
+ * changes immediately, without having to recompute the whole summary.
+ *
+ * Note: `currency` is passed as a *value* into
+ * [com.moneytracker.domain.usecase.GetDashboardSummaryUseCase.invoke]
+ * but is currently unused there — the active currency is re-read
+ * reactively from `SettingsRepository.currency` in the ViewModel. Kept
+ * in the signature for forward compatibility.
+ */
 package com.moneytracker.ui.screens.dashboard
 
 import androidx.lifecycle.ViewModel

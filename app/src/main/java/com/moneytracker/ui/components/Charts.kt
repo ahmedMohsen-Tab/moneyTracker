@@ -1,3 +1,10 @@
+/**
+ * Chart primitives for the Statistics screen (line / pie / bar).
+ *
+ * Built directly on `androidx.compose.foundation.Canvas` rather than a
+ * third-party charting library to keep the APK small and the rendering
+ * behaviour under our control.
+ */
 package com.moneytracker.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth

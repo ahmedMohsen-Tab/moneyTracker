@@ -1,3 +1,19 @@
+/**
+ * The single `NavHost` for the whole app.
+ *
+ * Five destinations:
+ *  - Dashboard (start)  — home, summary + recent transactions
+ *  - AddExpense         — modal-ish flow for new transactions
+ *  - EditExpense        — same screen with an `expenseId` nav arg
+ *  - ExpensesList       — full searchable history
+ *  - Statistics         — charts
+ *  - Settings           — preferences + backup/restore
+ *
+ * Bottom navigation bar only shows on the three top-level destinations.
+ * Uses `popUpTo(startDestination) { saveState = true }` +
+ * `restoreState = true` so switching tabs preserves each tab's state and
+ * the back button still exits the app cleanly from any tab.
+ */
 package com.moneytracker.ui.navigation
 
 import androidx.compose.foundation.layout.padding

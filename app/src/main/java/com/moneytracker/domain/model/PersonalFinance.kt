@@ -1,3 +1,12 @@
+/**
+ * Aggregated financial snapshot exposed to the UI.
+ *
+ * `totalBalance = cash + bank` (Credit Card was removed; legacy rows are
+ * re-bucketed to CASH on import).
+ *
+ * `recentTransactions` is already merged + sorted by timestamp (most
+ * recent first) and capped at 10 — the dashboard renders it directly.
+ */
 package com.moneytracker.domain.model
 
 import java.time.LocalDate

@@ -1,3 +1,15 @@
+/**
+ * Sealed-class hierarchy for the unified transaction list shown on the
+ * dashboard, expenses-list and statistics screens.
+ *
+ * Using a sealed class (instead of a single `Transaction` data class with
+ * nullable fields) lets the UI `when`-match on the subtype without smart
+ * casts and forces every new transaction kind to be explicitly handled.
+ *
+ * The `toTransaction()` mapper converts the entity-level
+ * [com.moneytracker.data.local.entity.ExpenseEntity] /
+ * [com.moneytracker.data.local.entity.IncomeEntity] into the right subtype.
+ */
 package com.moneytracker.domain.model
 
 import java.time.LocalDate

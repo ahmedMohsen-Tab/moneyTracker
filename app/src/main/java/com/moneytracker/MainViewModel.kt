@@ -1,3 +1,20 @@
+/**
+ * Theme + locale holder for the whole app.
+ *
+ * Reads both preferences **synchronously once** at construction via
+ * `runBlocking(Dispatchers.IO) { settingsRepository.<key>.first() }` so
+ * the first Compose frame already knows the user's choices. DataStore's
+ * first read is single-digit milliseconds and the ViewModel is created
+ * on the main thread before the first frame, so the user never
+ * perceives the wait.
+ *
+ * The synchronous read also eliminates the previous recreate loop
+ * (synthetic `"system"` placeholder emitted first, real value arrived
+ * later, MainActivity saw the change and called recreate()).
+ *
+ * Subsequent preference changes flow through the StateFlow normally —
+ * the synchronous read only seeds the initial value.
+ */
 package com.moneytracker
 
 import androidx.lifecycle.ViewModel

@@ -1,3 +1,19 @@
+/**
+ * Room DAO for [com.moneytracker.data.local.entity.ExpenseEntity].
+ *
+ * The "recent" / month / date / search queries all return
+ * [ExpenseWithCategory] via `@Transaction` joins because the UI wants to
+ * show the category name and colour alongside each row.
+ *
+ * The pure-aggregate queries (`getTotalByDate`, `getTotalByMonth`,
+ * `getHighestSpendingDay`, `getHighestSpendingCategory`) intentionally
+ * return scalar / projection types so the dashboard summary use case
+ * can compute totals without materialising a single row.
+ *
+ * `getRecent(limit)` is the cold-start fast path: it pulls only the top-N
+ * rows (with category join) for the dashboard's recent transactions list,
+ * instead of pulling the entire history.
+ */
 package com.moneytracker.data.local.dao
 
 import androidx.room.Dao

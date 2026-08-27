@@ -1,3 +1,11 @@
+/**
+ * Charts screen.
+ *
+ * Renders:
+ *  - A line chart of daily spending for the selected month.
+ *  - A pie / bar chart of spending by category for the selected month.
+ *  - A summary row with the highest-spending day and category.
+ */
 package com.moneytracker.ui.screens.statistics
 
 import androidx.compose.foundation.layout.Arrangement

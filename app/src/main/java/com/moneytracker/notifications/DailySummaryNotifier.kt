@@ -1,3 +1,14 @@
+/**
+ * Builds the local notification shown at 8 PM with today's spending.
+ *
+ * Two flavours:
+ *  - With budget: "You spent X of Y (Z% of your daily budget)".
+ *  - Without budget: "You spent X today".
+ *
+ * Reads today's total from [com.moneytracker.data.repository.ExpenseRepository]
+ * (a `Flow<Double>` reduced with `first()` so the notification worker
+ * doesn't have to subscribe).
+ */
 package com.moneytracker.notifications
 
 import android.Manifest

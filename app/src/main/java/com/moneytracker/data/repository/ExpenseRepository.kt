@@ -1,3 +1,12 @@
+/**
+ * Repository wrapping [ExpenseDao].
+ *
+ * Most callers should prefer the targeted `getRecentExpenses(limit)` /
+ * `getExpensesByMonth(month)` over `getAllExpenses()` — the all-rows query
+ * is O(N) on the size of the user's history and forces a per-row join
+ * against `categories`, which is exactly the cold-start bottleneck the
+ * dashboard summary use case used to hit.
+ */
 package com.moneytracker.data.repository
 
 import com.moneytracker.data.local.dao.ExpenseDao

@@ -1,3 +1,19 @@
+/**
+ * Single source of truth for the dashboard.
+ *
+ * Cold-start optimised: previously loaded the FULL expense + income
+ * history (with per-row `@Transaction` joins against `categories`) just
+ * to compute per-month totals in Kotlin. The current implementation
+ * uses a 9-source `combine` of:
+ *  - 3 SQL aggregate `SUM` queries (no row materialisation);
+ *  - 2 month-scoped row queries for wallet balance aggregation;
+ *  - 2 top-N "recent" queries for the recent transactions list;
+ *  - 1 budget read + 1 category-budget usage flow.
+ *
+ * Result: dashboard cold-start is now O(1) in the size of the user's
+ * history, not O(N). The first frame renders with real data instead of
+ * an empty state that pops in 1–2 seconds later.
+ */
 package com.moneytracker.domain.usecase
 
 import com.moneytracker.data.repository.BudgetRepository

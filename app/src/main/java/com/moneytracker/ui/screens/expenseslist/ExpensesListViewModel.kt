@@ -1,3 +1,12 @@
+/**
+ * State holder for the ExpensesList screen.
+ *
+ * Subscribes to all expenses + incomes (merged into a single sorted
+ * list by timestamp) and exposes a `query: StateFlow<String>` that the
+ * search box binds to. Filtering is done client-side on the snapshotted
+ * list — the dataset is bounded by what the user has, and a separate
+ * server-side query would force a recomposition every keystroke.
+ */
 package com.moneytracker.ui.screens.expenseslist
 
 import androidx.lifecycle.ViewModel

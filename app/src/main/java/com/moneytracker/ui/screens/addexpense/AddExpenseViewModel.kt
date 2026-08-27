@@ -1,3 +1,17 @@
+/**
+ * State holder for the Add / Edit transaction screen.
+ *
+ * Notable behaviour:
+ *  - On construction, subscribes to the categories flow and auto-selects
+ *    the first non-default category so the dropdown is never blank.
+ *  - When the user creates a brand-new category via the dialog, the
+ *    resulting row is auto-selected once Room emits the new list —
+ *    using a `pendingNewCategoryName` marker so the auto-select only
+ *    happens once per creation (not on every subsequent emission).
+ *  - `save()` validates the amount > 0, then either inserts or updates
+ *    depending on `isEdit`. Incomes skip the category (no category
+ *    dropdown when `isIncome = true`).
+ */
 package com.moneytracker.ui.screens.addexpense
 
 import androidx.annotation.StringRes

@@ -1,3 +1,7 @@
+/**
+ * Read-only text field that opens a Material 3 TimePicker dialog on tap.
+ * Same hoisting pattern as [DatePickerField].
+ */
 package com.moneytracker.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth

@@ -1,3 +1,18 @@
+/**
+ * Settings / preferences screen.
+ *
+ * Sections (top-to-bottom):
+ *  - Currency picker (USD / EUR / EGP / SAR / AED chips)
+ *  - Theme picker (Light / Dark / System)
+ *  - Language picker (System / English / Arabic)
+ *  - Daily-summary notification toggle
+ *  - Category Budgets (single picker form + list of existing budgets)
+ *  - Backup & Restore (CSV export / import)
+ *  - Reset all data (destructive, behind an AlertDialog)
+ *
+ * Long-press / destructive actions always go through an explicit
+ * confirmation dialog so a stray tap can't wipe the user's data.
+ */
 package com.moneytracker.ui.screens.settings
 
 import android.widget.Toast

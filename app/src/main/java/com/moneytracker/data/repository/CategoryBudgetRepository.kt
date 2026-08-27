@@ -1,3 +1,8 @@
+/**
+ * Repository wrapping [CategoryBudgetDao]. Surfaces the per-category
+ * monthly limits as a `Flow<List<CategoryBudget>>` for the dashboard and
+ * the category-budget usage use case.
+ */
 package com.moneytracker.data.repository
 
 import com.moneytracker.data.local.dao.CategoryBudgetDao

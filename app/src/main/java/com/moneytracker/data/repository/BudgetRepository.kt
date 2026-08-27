@@ -1,3 +1,8 @@
+/**
+ * Repository wrapping [BudgetDao]. Exposes the singleton budget as a
+ * `Flow<Budget>` so the dashboard reacts to changes (Settings screen
+ * saving a new monthly budget updates the dashboard immediately).
+ */
 package com.moneytracker.data.repository
 
 import com.moneytracker.data.local.dao.BudgetDao

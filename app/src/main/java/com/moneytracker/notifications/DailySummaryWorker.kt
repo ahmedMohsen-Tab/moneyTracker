@@ -1,3 +1,7 @@
+/**
+ * CoroutineWorker wrapper around [DailySummaryNotifier]. Scheduled by
+ * [DailySummaryScheduler].
+ */
 package com.moneytracker.notifications
 
 import android.content.Context

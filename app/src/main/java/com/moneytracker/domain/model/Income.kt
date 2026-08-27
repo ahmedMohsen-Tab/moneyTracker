@@ -1,3 +1,8 @@
+/**
+ * Domain model for a single income, mirroring the structure of [Expense].
+ * Incomes have no category — see the comment on
+ * [com.moneytracker.data.local.entity.IncomeEntity].
+ */
 package com.moneytracker.domain.model
 
 import java.time.LocalDate

@@ -1,3 +1,10 @@
+/**
+ * Aggregations for the Statistics screen: per-category totals, daily
+ * spending for the chosen month, and totals by wallet.
+ *
+ * Uses month-scoped queries so the screen stays cheap regardless of how
+ * much history the user has.
+ */
 package com.moneytracker.domain.usecase
 
 import com.moneytracker.data.repository.ExpenseRepository

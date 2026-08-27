@@ -1,3 +1,8 @@
+/**
+ * App colour palette. Defines a small set of brand colours consumed by
+ * [Theme]; everything else comes from Material 3's dynamic colour tokens
+ * so light / dark / system themes work out of the box.
+ */
 package com.moneytracker.ui.theme
 
 import androidx.compose.ui.graphics.Color

@@ -1,3 +1,17 @@
+/**
+ * Thin wrapper around the app's Jetpack DataStore preferences.
+ *
+ * Stores user-visible settings that are NOT large enough to warrant a
+ * database row: currency, theme, language, and the daily-summary toggle.
+ *
+ * Each `val x: Flow<String>` reads the corresponding preference key with
+ * a sane default — callers should treat the flow as "never null, never
+ * throws". Setters are `suspend` because DataStore writes are async.
+ *
+ * Used by [com.moneytracker.data.repository.SettingsRepository] and by
+ * [com.moneytracker.MainViewModel] (which reads it synchronously once at
+ * construction for the first-frame locale/theme).
+ */
 package com.moneytracker.data.local.preferences
 
 import android.content.Context

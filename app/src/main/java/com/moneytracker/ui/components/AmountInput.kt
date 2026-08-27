@@ -1,3 +1,11 @@
+/**
+ * Currency-aware text input for entering a monetary amount.
+ *
+ * Accepts only digits and at most one decimal point with up to two
+ * decimal places. The trailing decimal point is preserved while the user
+ * is typing (e.g. "12.") so they don't lose the dot while entering
+ * "12.50".
+ */
 package com.moneytracker.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth

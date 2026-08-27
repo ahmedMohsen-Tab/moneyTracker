@@ -1,3 +1,11 @@
+/**
+ * Typed route definitions for every NavHost destination.
+ *
+ * Routes are plain strings (not NavType safe routes) because the project
+ * targets Compose Navigation without the type-safe routes preview. The
+ * [EditExpense.createRoute] helper centralises the `expenseId` argument
+ * encoding so callers don't have to remember the format.
+ */
 package com.moneytracker.ui.navigation
 
 sealed class Screen(val route: String) {

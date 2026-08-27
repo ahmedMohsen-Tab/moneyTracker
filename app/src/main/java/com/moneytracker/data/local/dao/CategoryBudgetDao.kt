@@ -1,3 +1,11 @@
+/**
+ * Room DAO for per-category monthly limits.
+ *
+ * One row per category id (primary key), so upsert is "set the budget for
+ * this category" and delete-by-category is "clear the budget for this
+ * category". No row count or aggregate queries live here — those belong
+ * in the use case layer.
+ */
 package com.moneytracker.data.local.dao
 
 import androidx.room.Dao

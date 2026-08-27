@@ -1,3 +1,22 @@
+/**
+ * The single activity that hosts the Compose tree.
+ *
+ * On `onCreate`:
+ *  1. Enables edge-to-edge layout.
+ *  2. Reads theme + locale from [MainViewModel] (which does a synchronous
+ *     first read of DataStore so the first frame already has the correct
+ *     values — no flicker, no recreate loop).
+ *  3. Renders [com.moneytracker.ui.navigation.MoneyTrackerNavigation]
+ *     inside the Material 3 theme.
+ *
+ * There is intentionally **no** `LaunchedEffect(locale) { recreate() }`
+ * here. The previous implementation triggered an Activity recreate loop
+ * on cold start because DataStore's first emission was a synthetic
+ * placeholder, not the saved locale. The locale is now applied exactly
+ * once by [com.moneytracker.MoneyTrackerApplication.onCreate] before
+ * this Activity exists, and user-initiated locale changes go through
+ * the Settings screen (which calls recreate() itself, exactly once).
+ */
 package com.moneytracker
 
 import android.os.Bundle

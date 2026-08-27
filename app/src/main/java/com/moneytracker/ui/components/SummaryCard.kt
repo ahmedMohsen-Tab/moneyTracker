@@ -1,3 +1,8 @@
+/**
+ * Small key/value card used in the wallet-balance row and the
+ * today/this-month/remaining row on the dashboard. Renders the value
+ * with `formatCurrency` so the format follows the device locale.
+ */
 package com.moneytracker.ui.components
 
 import androidx.compose.foundation.layout.Column

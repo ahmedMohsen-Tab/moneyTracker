@@ -1,3 +1,8 @@
+/**
+ * Material 3 theme wrapper consumed by `MainActivity.setContent`. Switches
+ * between the light and dark colour schemes based on the user's
+ * preference (or the system setting when preference == "System").
+ */
 package com.moneytracker.ui.theme
 
 import android.app.Activity

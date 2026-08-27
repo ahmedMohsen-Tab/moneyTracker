@@ -1,3 +1,8 @@
+/**
+ * Repository wrapping [CategoryDao]. Reads the seeded (or user-added)
+ * category list as a `Flow<List<Category>>` and lets the Add Expense
+ * screen insert a brand-new category with a fresh id > 10.
+ */
 package com.moneytracker.data.repository
 
 import com.moneytracker.data.local.dao.CategoryDao

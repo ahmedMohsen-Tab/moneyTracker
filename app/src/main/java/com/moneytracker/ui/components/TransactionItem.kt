@@ -1,3 +1,12 @@
+/**
+ * Single row in the recent-transactions LazyColumn on the dashboard and
+ * the full list on the ExpensesList screen.
+ *
+ * Shows the category icon (or a generic money icon for incomes), the
+ * formatted amount with sign-aware colour, the description, and a
+ * relative-style date label. Clickable for expense rows so the user can
+ * jump straight to the edit screen.
+ */
 package com.moneytracker.ui.components
 
 import androidx.compose.foundation.layout.Box

@@ -1,3 +1,14 @@
+/**
+ * Domain models for per-category monthly budgets and their computed
+ * usage against the current month.
+ *
+ * [CategoryBudgetUsage.percent] is a derived property: `spent / limit`
+ * (returning 0 when `limit <= 0` so callers don't have to guard against
+ * division-by-zero).
+ *
+ * [CategoryBudgetStatus] thresholds (60% / 90% / 100%) drive the colour
+ * of the per-category progress bar on the dashboard.
+ */
 package com.moneytracker.domain.model
 
 data class CategoryBudget(

@@ -1,3 +1,12 @@
+/**
+ * Room DAO for [com.moneytracker.data.local.entity.IncomeEntity].
+ *
+ * No `@Transaction` joins here — incomes don't have a category, so the
+ * simpler bare-entity reads are sufficient.
+ *
+ * Like [ExpenseDao], the aggregate queries return scalar projections to
+ * keep dashboard cold-start cheap.
+ */
 package com.moneytracker.data.local.dao
 
 import androidx.room.Dao

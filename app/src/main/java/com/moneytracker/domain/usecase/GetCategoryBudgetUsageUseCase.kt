@@ -1,3 +1,14 @@
+/**
+ * Computes the dashboard's "Category Budgets" list: for each row in
+ * `category_budgets`, sums the matching month's expenses and pairs it
+ * with a [com.moneytracker.domain.model.CategoryBudgetStatus] threshold.
+ *
+ * Subscribes to **month-scoped** expenses only (not the full history) so
+ * it stays cheap even on installs with years of data. The combine of three
+ * flows (expenses / categories / category_budgets) is the source of
+ * reactive updates: adding a new expense re-emits, editing a category
+ * budget re-emits, etc.
+ */
 package com.moneytracker.domain.usecase
 
 import com.moneytracker.data.repository.CategoryBudgetRepository

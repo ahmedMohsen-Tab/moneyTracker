@@ -1,3 +1,18 @@
+/**
+ * The home screen.
+ *
+ * Renders (inside a LazyColumn):
+ *  - Month navigation row (prev / current / next)
+ *  - BalanceCard (total balance in chosen currency)
+ *  - Wallet summary row (Bank + Cash)
+ *  - Today spent / This month spent / Remaining row
+ *  - Recent transactions list (top 10)
+ *  - Optional Category Budgets section (top 3 by usage %)
+ *
+ * A `DisposableEffect` listens for `ON_RESUME` lifecycle events and
+ * calls `viewModel.onResume()` so the "today" boundary refreshes when
+ * the user backgrounds and re-foregrounds the app across midnight.
+ */
 package com.moneytracker.ui.screens.dashboard
 
 import androidx.compose.foundation.layout.Arrangement

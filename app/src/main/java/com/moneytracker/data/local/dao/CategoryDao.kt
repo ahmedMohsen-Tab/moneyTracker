@@ -1,3 +1,13 @@
+/**
+ * Room DAO for the seeded [CategoryEntity] list.
+ *
+ * Categories are seeded by [com.moneytracker.data.local.AppDatabase.Callback.seedCategories]
+ * on first DB creation. The seed never changes after install unless the
+ * version bumps and a migration explicitly inserts the new rows.
+ *
+ * `getMaxId()` is used when the user creates a brand-new category from the
+ * Add Expense screen so we can hand out an id > 10 (the seeded range).
+ */
 package com.moneytracker.data.local.dao
 
 import androidx.room.Dao

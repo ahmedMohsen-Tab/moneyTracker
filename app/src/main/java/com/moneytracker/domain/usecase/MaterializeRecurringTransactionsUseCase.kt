@@ -1,3 +1,16 @@
+/**
+ * Materialises concrete rows for every recurring expense / income whose
+ * next occurrence falls on or before today.
+ *
+ * Idempotent: called by [com.moneytracker.notifications.RecurringTransactionsWorker]
+ * once per day, and again on every cold start (the scheduler uses KEEP
+ * policy so duplicate enqueues are fine). The worker also catches up
+ * rows spawned while the device was off.
+ *
+ * Each template owns a `recurrenceGroupId`; we look up the latest
+ * concrete row in the group to compute the next due date so edits to
+ * the schedule (paused / resumed / deleted) propagate correctly.
+ */
 package com.moneytracker.domain.usecase
 
 import com.moneytracker.data.repository.ExpenseRepository

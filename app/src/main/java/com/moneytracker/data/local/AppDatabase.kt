@@ -1,3 +1,18 @@
+/**
+ * The single Room database for the app.
+ *
+ * Holds expenses, incomes, the singleton budget row, the seeded category
+ * list, and the per-category budgets. Schema version is 3; if you bump it,
+ * add a `Migration` to [com.moneytracker.di.DatabaseModule] — do not rely
+ * on `fallbackToDestructiveMigration`.
+ *
+ * The `Callback` runs once on first creation of the DB on a device and:
+ *  - seeds the canonical category list (see [seedCategories]); and
+ *  - seeds an empty budget row (see [seedBudget]).
+ *
+ * Seeding happens on the IO dispatcher via the application's application
+ * scope, never on the main thread.
+ */
 package com.moneytracker.data.local
 
 import android.content.Context

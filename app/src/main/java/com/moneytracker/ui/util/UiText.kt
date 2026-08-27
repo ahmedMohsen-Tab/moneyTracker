@@ -1,3 +1,8 @@
+/**
+ * Wrapper for strings that may be either a literal or a `stringResource`
+ * reference. Lets ViewModels surface user-visible messages without
+ * importing Android `Context`.
+ */
 package com.moneytracker.ui.util
 
 import android.content.Context

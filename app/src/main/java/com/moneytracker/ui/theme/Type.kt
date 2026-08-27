@@ -1,3 +1,7 @@
+/**
+ * Typography scale: heading / body / label styles applied across the app.
+ * Keeping it centralised here means a brand refresh touches one file.
+ */
 package com.moneytracker.ui.theme
 
 import androidx.compose.material3.Typography

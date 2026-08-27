@@ -1,3 +1,10 @@
+/**
+ * Read-only text field that opens a Material 3 DatePicker dialog on tap.
+ *
+ * The picker state is hoisted into the parent ViewModel via the
+ * `onDateSelected` callback so the field survives recomposition and
+ * configuration changes without losing the user's selection.
+ */
 package com.moneytracker.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth

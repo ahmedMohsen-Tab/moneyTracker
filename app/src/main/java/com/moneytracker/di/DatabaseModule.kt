@@ -1,3 +1,18 @@
+/**
+ * Hilt module that provides the Room database and its DAOs as
+ * `@Singleton`s.
+ *
+ * Also declares the schema migrations:
+ *  - [MIGRATION_1_2]: adds the `wallet` column to incomes (income rows
+ *    used to be cash-only).
+ *  - [MIGRATION_2_3]: adds recurrence columns to expenses + incomes and
+ *    creates the `category_budgets` table.
+ *
+ * When you bump the schema version in
+ * [com.moneytracker.data.local.AppDatabase], add a new migration here and
+ * call `.addMigrations(newMigration)` on the builder below. Do NOT use
+ * `fallbackToDestructiveMigration` — it silently deletes user data.
+ */
 package com.moneytracker.di
 
 import android.content.Context

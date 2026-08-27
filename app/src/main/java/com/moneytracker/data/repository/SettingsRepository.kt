@@ -1,3 +1,14 @@
+/**
+ * Aggregator repository over [UserPreferences] + [BackupRepository].
+ *
+ * Used by [com.moneytracker.ui.screens.settings.SettingsViewModel] — the
+ * settings screen reads/writes every preference key through here so the
+ * ViewModel doesn't have to know about DataStore directly.
+ *
+ * `resetAll()` wipes the Room database via the expense/income/category/
+ * category-budget DAOs and clears every DataStore preference, returning
+ * the app to a fresh-install state.
+ */
 package com.moneytracker.data.repository
 
 import android.net.Uri

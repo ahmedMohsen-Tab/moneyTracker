@@ -1,3 +1,22 @@
+/**
+ * CSV export/import of expenses and incomes.
+ *
+ * Format (single header line + one row per transaction):
+ *
+ *   type,id,amount,categoryId,description,date,time,wallet
+ *
+ * - `type` is either "expense" or "income".
+ * - `categoryId` is the joined-in id (always present for expenses, always
+ *   empty for incomes).
+ * - `description` is wrapped in double quotes and the inner content has
+ *   any embedded quotes doubled (RFC 4180). See [com.moneytracker.data.backup.CsvCodec]
+ *   for the escape rules.
+ * - `date` / `time` are the raw ISO strings stored on the entity.
+ *
+ * Import is tolerant: missing trailing fields default to empty / "Cash",
+ * and unknown wallet labels fall back to CASH via
+ * [com.moneytracker.domain.model.Wallet.fromName].
+ */
 package com.moneytracker.data.repository
 
 import android.content.Context

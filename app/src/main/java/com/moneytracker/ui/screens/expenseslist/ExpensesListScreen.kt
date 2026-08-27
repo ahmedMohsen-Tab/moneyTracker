@@ -1,3 +1,11 @@
+/**
+ * Full searchable transaction history.
+ *
+ * Renders every expense (and income) in a scrollable list with a search
+ * box at the top that filters by description or category name (see
+ * [com.moneytracker.data.local.dao.ExpenseDao.search]). Tapping a row
+ * navigates to the edit screen.
+ */
 package com.moneytracker.ui.screens.expenseslist
 
 import androidx.compose.foundation.background

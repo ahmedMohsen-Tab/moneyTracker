@@ -1,3 +1,12 @@
+/**
+ * Room DAO for the singleton [com.moneytracker.data.local.entity.BudgetEntity]
+ * row. All methods are `suspend` or `Flow`; the wrapper
+ * [com.moneytracker.data.repository.BudgetRepository] handles dispatching.
+ *
+ * `getBudget()` returns a `Flow<BudgetEntity?>` rather than `Flow<BudgetEntity>`
+ * to keep the table tolerant of the empty state before the seed callback
+ * has run on first install.
+ */
 package com.moneytracker.data.local.dao
 
 import androidx.room.Dao

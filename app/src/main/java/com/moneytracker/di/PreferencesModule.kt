@@ -1,3 +1,11 @@
+/**
+ * Hilt module that exposes [UserPreferences] as a `@Singleton`.
+ *
+ * The DataStore instance itself is created via the
+ * `Context.dataStore` extension defined inside
+ * [com.moneytracker.data.local.preferences.UserPreferences] so it stays
+ * scoped to the application context (no leaks).
+ */
 package com.moneytracker.di
 
 import android.content.Context

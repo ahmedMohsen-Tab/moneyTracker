@@ -1,3 +1,8 @@
+/**
+ * Repository wrapping [IncomeDao]. Same trade-offs as
+ * [ExpenseRepository]: prefer [getRecentIncome] over [getAllIncome] when
+ * the caller only needs the top of the history.
+ */
 package com.moneytracker.data.repository
 
 import com.moneytracker.data.local.dao.IncomeDao

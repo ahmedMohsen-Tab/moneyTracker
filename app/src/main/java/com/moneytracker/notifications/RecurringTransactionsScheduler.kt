@@ -1,3 +1,11 @@
+/**
+ * Schedules / cancels the [RecurringTransactionsWorker] using WorkManager.
+ *
+ * Always-on (idempotent): called once per cold start from
+ * [com.moneytracker.MoneyTrackerApplication.onCreate] with KEEP policy, so
+ * duplicate enqueues are no-ops and the work is guaranteed to be pending
+ * after every device reboot.
+ */
 package com.moneytracker.notifications
 
 import android.content.Context

@@ -1,3 +1,8 @@
+/**
+ * State holder for the Statistics screen. Delegates the aggregations to
+ * [com.moneytracker.domain.usecase.GetStatisticsUseCase] and exposes
+ * them as `StateFlow`s for the screen.
+ */
 package com.moneytracker.ui.screens.statistics
 
 import androidx.lifecycle.ViewModel

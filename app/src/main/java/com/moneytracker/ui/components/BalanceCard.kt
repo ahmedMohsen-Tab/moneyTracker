@@ -1,3 +1,9 @@
+/**
+ * Hero card at the top of the dashboard showing the user's total balance
+ * in their chosen currency. Renders positive amounts in the primary
+ * colour and negative amounts in the error colour so a glance is enough
+ * to tell whether you're in the red.
+ */
 package com.moneytracker.ui.components
 
 import androidx.compose.foundation.layout.Column

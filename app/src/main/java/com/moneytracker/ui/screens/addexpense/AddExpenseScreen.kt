@@ -1,3 +1,23 @@
+/**
+ * Combined add / edit screen for expenses and incomes.
+ *
+ * Layout (top-to-bottom):
+ *  1. TopAppBar (title switches between Add/Edit × Expense/Income)
+ *  2. Expense/Income toggle (only when creating, not when editing) — uses
+ *     [FilterChip] so the selected mode is the filled one and the other
+ *     is the outlined one (see git history for the original Button /
+ *     inverted-enabled bug).
+ *  3. Amount input
+ *  4. Category dropdown (hidden when in income mode)
+ *  5. Description text field
+ *  6. Date picker
+ *  7. Time picker
+ *  8. Wallet radio group
+ *  9. Cancel / Save buttons
+ *
+ * Validation happens in the ViewModel; the screen just collects input
+ * and dispatches `viewModel.save()`.
+ */
 package com.moneytracker.ui.screens.addexpense
 
 import android.widget.Toast

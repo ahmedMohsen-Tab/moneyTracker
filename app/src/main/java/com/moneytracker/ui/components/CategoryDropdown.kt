@@ -1,3 +1,9 @@
+/**
+ * Material 3 ExposedDropdownMenu bound to the categories flow.
+ *
+ * Always appends a special "Other..." entry which opens a dialog in the
+ * Add Expense screen so the user can add a brand-new category on the fly.
+ */
 package com.moneytracker.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth

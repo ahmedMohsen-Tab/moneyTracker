@@ -1,7 +1,9 @@
 package com.moneytracker.ui.screens.addexpense
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.moneytracker.R
 import com.moneytracker.data.repository.CategoryRepository
 import com.moneytracker.data.repository.ExpenseRepository
 import com.moneytracker.data.repository.IncomeRepository
@@ -42,13 +44,26 @@ class AddExpenseViewModel @Inject constructor(
         viewModelScope.launch {
             categoryRepository.getAllCategories().collect { categories ->
                 _uiState.update { state ->
+                    val pending = state.pendingNewCategoryName
+                    val matching = pending?.let { name ->
+                        categories.firstOrNull { it.name.equals(name, ignoreCase = true) }
+                    }
                     state.copy(
                         categories = categories,
-                        selectedCategory = if (state.selectedCategory == Category.default && categories.isNotEmpty()) {
-                            categories.first()
-                        } else {
-                            state.selectedCategory
-                        }
+                        selectedCategory = when {
+                            matching != null -> matching
+                            // First run with no selection yet — fall back to the first
+                            // available category rather than the "Other" placeholder.
+                            state.selectedCategory == Category.default && categories.isNotEmpty() -> {
+                                categories.first()
+                            }
+                            else -> state.selectedCategory
+                        },
+                        // Drop the marker once we've either picked the new row or
+                        // decided it isn't there — either way, the user's intent
+                        // has been honoured and we shouldn't keep overriding the
+                        // selection on subsequent emissions.
+                        pendingNewCategoryName = if (matching != null || pending == null) null else pending
                     )
                 }
             }
@@ -57,17 +72,16 @@ class AddExpenseViewModel @Inject constructor(
 
     fun loadExpense(id: Long) {
         viewModelScope.launch {
-            val expense = expenseRepository.getExpenseById(id)
-            expense?.let {
+            expenseRepository.getExpenseById(id)?.let { expense ->
                 _uiState.value = _uiState.value.copy(
-                    amount = it.amount.toString(),
-                    selectedCategory = it.category,
-                    description = it.description,
-                    date = it.date,
-                    time = it.time,
-                    wallet = it.wallet,
+                    amount = expense.amount.toString(),
+                    selectedCategory = expense.category,
+                    description = expense.description,
+                    date = expense.date,
+                    time = expense.time,
+                    wallet = expense.wallet,
                     isEdit = true,
-                    editId = it.id
+                    editId = expense.id
                 )
             }
         }
@@ -75,17 +89,16 @@ class AddExpenseViewModel @Inject constructor(
 
     fun loadIncome(id: Long) {
         viewModelScope.launch {
-            val income = incomeRepository.getIncomeById(id)
-            income?.let {
+            incomeRepository.getIncomeById(id)?.let { income ->
                 _uiState.value = _uiState.value.copy(
-                    amount = it.amount.toString(),
-                    description = it.description,
-                    date = it.date,
-                    time = it.time,
+                    amount = income.amount.toString(),
+                    description = income.description,
+                    date = income.date,
+                    time = income.time,
                     isIncome = true,
                     isEdit = true,
-                    editId = it.id,
-                    wallet = it.wallet
+                    editId = income.id,
+                    wallet = income.wallet
                 )
             }
         }
@@ -139,23 +152,21 @@ class AddExpenseViewModel @Inject constructor(
     fun confirmNewCategory() {
         val trimmed = _uiState.value.newCategoryName.trim()
         if (trimmed.isEmpty()) {
-            viewModelScope.launch {
-                _events.emit(AddExpenseEvent.ShowError("Category name cannot be empty"))
-            }
+            viewModelScope.launch { emitError(R.string.add_expense_error_category_empty) }
             return
         }
-        val currentCategories = _uiState.value.categories
-        if (currentCategories.any { it.name.equals(trimmed, ignoreCase = true) }) {
-            viewModelScope.launch {
-                _events.emit(AddExpenseEvent.ShowError("Category already exists"))
-            }
+        val existing = _uiState.value.categories
+        if (existing.any { it.name.equals(trimmed, ignoreCase = true) }) {
+            viewModelScope.launch { emitError(R.string.add_expense_error_category_exists) }
             return
         }
         viewModelScope.launch {
             try {
-                val newId = categoryRepository.getMaxCategoryId() + 1
                 val newCategory = Category(
-                    id = newId,
+                    // id = 0 lets Room auto-generate, avoiding the race that came from
+                    // reading `getMaxCategoryId() + 1` (two near-simultaneous inserts
+                    // could collide on the same id).
+                    id = 0,
                     name = trimmed,
                     iconName = Category.default.iconName,
                     color = Category.default.color
@@ -163,14 +174,16 @@ class AddExpenseViewModel @Inject constructor(
                 categoryRepository.insertCategory(newCategory)
                 _uiState.update {
                     it.copy(
-                        categories = currentCategories + newCategory,
-                        selectedCategory = newCategory,
                         showNewCategoryDialog = false,
-                        newCategoryName = ""
+                        newCategoryName = "",
+                        // Stash the requested name so the init block's `collect`
+                        // can promote the matching freshly-inserted row to the
+                        // selected category once Room emits the new list.
+                        pendingNewCategoryName = trimmed
                     )
                 }
             } catch (e: Exception) {
-                _events.emit(AddExpenseEvent.ShowError(e.message ?: "Failed to add category"))
+                _events.emit(AddExpenseEvent.ShowError(R.string.add_expense_error_category_failed))
             }
         }
     }
@@ -180,7 +193,7 @@ class AddExpenseViewModel @Inject constructor(
             val state = _uiState.value
             val amount = state.amount.toDoubleOrNull() ?: 0.0
             if (amount <= 0) {
-                _events.emit(AddExpenseEvent.ShowError("Amount must be greater than zero"))
+                emitError(R.string.add_expense_error_amount_zero)
                 return@launch
             }
             try {
@@ -210,9 +223,13 @@ class AddExpenseViewModel @Inject constructor(
                 }
                 _events.emit(AddExpenseEvent.NavigateBack)
             } catch (e: Exception) {
-                _events.emit(AddExpenseEvent.ShowError(e.message ?: "Unknown error"))
+                _events.emit(AddExpenseEvent.ShowError(R.string.error_unknown))
             }
         }
+    }
+
+    private suspend fun emitError(@StringRes messageRes: Int) {
+        _events.emit(AddExpenseEvent.ShowError(messageRes))
     }
 
     data class AddExpenseUiState(
@@ -227,11 +244,18 @@ class AddExpenseViewModel @Inject constructor(
         val editId: Long = 0,
         val categories: List<Category> = emptyList(),
         val showNewCategoryDialog: Boolean = false,
-        val newCategoryName: String = ""
+        val newCategoryName: String = "",
+        /**
+         * Marker set after the user confirms a new category. The init block's
+         * `collect` on the categories flow uses it to promote the freshly
+         * inserted row to `selectedCategory` once Room emits the new list.
+         * Cleared as soon as the selection has been updated.
+         */
+        val pendingNewCategoryName: String? = null
     )
 
     sealed class AddExpenseEvent {
         data object NavigateBack : AddExpenseEvent()
-        data class ShowError(val message: String) : AddExpenseEvent()
+        data class ShowError(@StringRes val messageRes: Int) : AddExpenseEvent()
     }
 }

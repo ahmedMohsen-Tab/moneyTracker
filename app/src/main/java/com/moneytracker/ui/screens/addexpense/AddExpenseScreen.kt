@@ -65,7 +65,8 @@ fun AddExpenseScreen(
             when (event) {
                 is AddExpenseViewModel.AddExpenseEvent.NavigateBack -> onNavigateBack()
                 is AddExpenseViewModel.AddExpenseEvent.ShowError -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                    val message = context.getString(event.messageRes)
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -155,7 +156,7 @@ fun AddExpenseScreen(
 
             Text(stringResource(R.string.add_expense_wallet), style = MaterialTheme.typography.bodyMedium)
             Row(modifier = Modifier.selectableGroup()) {
-                listOf("Cash", "Bank", "Credit Card").forEach { wallet ->
+                listOf("Cash", "Bank").forEach { wallet ->
                     Row(
                         modifier = Modifier
                             .weight(1f)

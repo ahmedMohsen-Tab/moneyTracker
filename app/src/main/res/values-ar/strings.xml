@@ -21,7 +21,6 @@
     <string name="dashboard_balance_title">الرصيد الحالي</string>
     <string name="dashboard_wallet_cash">نقدًا</string>
     <string name="dashboard_wallet_bank">البنك</string>
-    <string name="dashboard_wallet_card">بطاقة</string>
     <string name="dashboard_spent_today">مُنفَق اليوم</string>
     <string name="dashboard_spent_this_month">مُنفَق هذا الشهر</string>
     <string name="dashboard_remaining">المتبقي</string>

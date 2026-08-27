@@ -5,66 +5,74 @@ import androidx.lifecycle.viewModelScope
 import com.moneytracker.data.repository.SettingsRepository
 import com.moneytracker.domain.usecase.GetStatisticsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import java.time.DayOfWeek
 import java.time.LocalDate
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class StatisticsViewModel @Inject constructor(
     getStatisticsUseCase: GetStatisticsUseCase,
     settingsRepository: SettingsRepository
 ) : ViewModel() {
 
-    private val currentMonth = LocalDate.now().toString().substring(0, 7)
+    // Reactive so the screen updates when the day rolls over even if this VM is
+    // kept alive across midnight.
+    private val _today = MutableStateFlow(LocalDate.now())
+    val today: StateFlow<LocalDate> = _today.asStateFlow()
 
-    val currency = settingsRepository.currency.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        "USD"
+    val currency: StateFlow<String> = settingsRepository.currency.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = "USD"
     )
 
-    val uiState: StateFlow<StatisticsUiState> = combine(
-        getStatisticsUseCase(currentMonth),
-        currency
-    ) { stats, currency ->
-        val expenses = stats.expenses
-        val daily = expenses
-            .groupBy { it.date.toString() }
-            .mapValues { entry -> entry.value.sumOf { it.amount } }
-        val category = expenses
-            .groupBy { it.category.name }
-            .mapValues { entry -> entry.value.sumOf { it.amount } }
-        val weekStart = LocalDate.now().with(DayOfWeek.MONDAY)
-        val weekly = (0..6).associate { offset ->
-            val day = weekStart.plusDays(offset.toLong())
-            day.dayOfWeek.name.take(3) to expenses.filter { it.date == day }.sumOf { it.amount }
+    val uiState: StateFlow<StatisticsUiState> = _today
+        .flatMapLatest { today ->
+            val monthString = today.toString().substring(0, 7)
+            combine(getStatisticsUseCase(monthString), currency) { stats, ccy ->
+                StatisticsUiState(
+                    totalIncome = stats.totalIncome,
+                    totalExpenses = stats.totalExpense,
+                    remainingBalance = stats.remaining,
+                    averageDailySpending = stats.averageDailySpending,
+                    highestSpendingDay = stats.highestSpendingDay,
+                    highestSpendingCategory = stats.highestSpendingCategory?.let { pair ->
+                        (stats.expenses.find { it.category.id == pair.first }?.category?.name ?: "") to pair.second
+                    },
+                    transactionCount = stats.transactionCount,
+                    dailySpending = stats.expenses
+                        .groupBy { it.date.toString() }
+                        .mapValues { entry -> entry.value.sumOf { it.amount } },
+                    categorySpending = stats.expenses
+                        .groupBy { it.category.name }
+                        .mapValues { entry -> entry.value.sumOf { it.amount } },
+                    weeklySpending = (0..6).associate { offset ->
+                        val day = today.with(DayOfWeek.MONDAY).plusDays(offset.toLong())
+                        day.dayOfWeek.name.take(3) to
+                            stats.expenses.filter { it.date == day }.sumOf { it.amount }
+                    },
+                    currency = ccy
+                )
+            }
         }
-        val highestCategory = stats.highestSpendingCategory?.let { pair ->
-            val name = expenses.find { it.category.id == pair.first }?.category?.name ?: ""
-            name to pair.second
-        }
-        StatisticsUiState(
-            totalIncome = stats.totalIncome,
-            totalExpenses = stats.totalExpense,
-            remainingBalance = stats.remaining,
-            averageDailySpending = stats.averageDailySpending,
-            highestSpendingDay = stats.highestSpendingDay,
-            highestSpendingCategory = highestCategory,
-            transactionCount = stats.transactionCount,
-            dailySpending = daily,
-            categorySpending = category,
-            weeklySpending = weekly,
-            currency = currency
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = StatisticsUiState()
         )
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        StatisticsUiState()
-    )
+
+    fun onResume() {
+        _today.value = LocalDate.now()
+    }
 }
 
 data class StatisticsUiState(

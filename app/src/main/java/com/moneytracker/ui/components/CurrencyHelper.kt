@@ -3,20 +3,14 @@ package com.moneytracker.ui.components
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.moneytracker.R
+import com.moneytracker.domain.format.MoneyFormatter
 
-fun currencySymbol(currency: String): String = when (currency) {
-    "USD" -> "$"
-    "EUR" -> "€"
-    "EGP" -> "E£"
-    "SAR" -> "﷼"
-    "AED" -> "د.إ"
-    else -> "$"
-}
+/** Back-compat thin wrapper. New code should call [MoneyFormatter] directly. */
+fun currencySymbol(currency: String): String = MoneyFormatter.symbol(currency)
 
-fun formatCurrency(amount: Double, currency: String): String {
-    val symbol = currencySymbol(currency)
-    return "$symbol%.2f".format(amount)
-}
+/** Back-compat thin wrapper. New code should call [MoneyFormatter.format] directly. */
+fun formatCurrency(amount: Double, currency: String): String =
+    MoneyFormatter.format(amount, currency)
 
 @Composable
 fun greeting(): String {

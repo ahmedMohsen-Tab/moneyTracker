@@ -127,8 +127,8 @@ class ExpensesListViewModel @Inject constructor(
         lastDeleted = transaction
         viewModelScope.launch {
             when (transaction) {
-                is Transaction.ExpenseTransaction -> {
-                    val expense = Expense(
+                is Transaction.ExpenseTransaction -> expenseRepository.deleteExpense(
+                    Expense(
                         id = transaction.id,
                         amount = transaction.amount,
                         category = transaction.category,
@@ -137,50 +137,47 @@ class ExpensesListViewModel @Inject constructor(
                         time = transaction.time,
                         wallet = transaction.wallet
                     )
-                    expenseRepository.deleteExpense(expense)
-                }
-                is Transaction.IncomeTransaction -> {
-                    val income = Income(
+                )
+                is Transaction.IncomeTransaction -> incomeRepository.deleteIncome(
+                    Income(
                         id = transaction.id,
                         amount = transaction.amount,
                         description = transaction.description,
                         date = transaction.date,
-                        time = transaction.time
+                        time = transaction.time,
+                        wallet = transaction.wallet
                     )
-                    incomeRepository.deleteIncome(income)
-                }
+                )
             }
         }
     }
 
     fun restoreLastDeleted() {
+        val transaction = lastDeleted ?: return
+        lastDeleted = null
         viewModelScope.launch {
-            lastDeleted?.let { transaction ->
-                when (transaction) {
-                    is Transaction.ExpenseTransaction -> {
-                        val expense = Expense(
-                            id = 0,
-                            amount = transaction.amount,
-                            category = transaction.category,
-                            description = transaction.description,
-                            date = transaction.date,
-                            time = transaction.time,
-                            wallet = transaction.wallet
-                        )
-                        expenseRepository.insertExpense(expense)
-                    }
-                    is Transaction.IncomeTransaction -> {
-                        val income = Income(
-                            id = 0,
-                            amount = transaction.amount,
-                            description = transaction.description,
-                            date = transaction.date,
-                            time = transaction.time
-                        )
-                        incomeRepository.insertIncome(income)
-                    }
-                }
-                lastDeleted = null
+            when (transaction) {
+                is Transaction.ExpenseTransaction -> expenseRepository.insertExpense(
+                    Expense(
+                        id = 0,
+                        amount = transaction.amount,
+                        category = transaction.category,
+                        description = transaction.description,
+                        date = transaction.date,
+                        time = transaction.time,
+                        wallet = transaction.wallet
+                    )
+                )
+                is Transaction.IncomeTransaction -> incomeRepository.insertIncome(
+                    Income(
+                        id = 0,
+                        amount = transaction.amount,
+                        description = transaction.description,
+                        date = transaction.date,
+                        time = transaction.time,
+                        wallet = transaction.wallet
+                    )
+                )
             }
         }
     }

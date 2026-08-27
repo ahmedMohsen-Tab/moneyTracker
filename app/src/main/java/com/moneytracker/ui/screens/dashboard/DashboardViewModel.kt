@@ -2,15 +2,11 @@ package com.moneytracker.ui.screens.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.moneytracker.data.repository.BudgetRepository
-import com.moneytracker.data.repository.ExpenseRepository
-import com.moneytracker.data.repository.IncomeRepository
 import com.moneytracker.data.repository.SettingsRepository
 import com.moneytracker.domain.model.Budget
 import com.moneytracker.domain.model.CategoryBudgetUsage
 import com.moneytracker.domain.model.Transaction
-import com.moneytracker.domain.model.toTransaction
-import com.moneytracker.domain.usecase.GetCategoryBudgetUsageUseCase
+import com.moneytracker.domain.usecase.GetDashboardSummaryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
 import java.time.YearMonth
@@ -27,17 +24,57 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    expenseRepository: ExpenseRepository,
-    incomeRepository: IncomeRepository,
-    budgetRepository: BudgetRepository,
-    settingsRepository: SettingsRepository,
-    private val getCategoryBudgetUsage: GetCategoryBudgetUsageUseCase
+    private val getDashboardSummary: GetDashboardSummaryUseCase,
+    settingsRepository: SettingsRepository
 ) : ViewModel() {
 
-    private val today = LocalDate.now()
-    
     private val _selectedMonth = MutableStateFlow(YearMonth.now())
-    val selectedMonth = _selectedMonth.asStateFlow()
+    val selectedMonth: StateFlow<YearMonth> = _selectedMonth.asStateFlow()
+
+    // `today` is observed reactively so the dashboard rolls over at midnight even
+    // when this ViewModel is kept alive by configuration changes.
+    private val _today = MutableStateFlow(LocalDate.now())
+    val today: StateFlow<LocalDate> = _today.asStateFlow()
+
+    val currency: StateFlow<String> = settingsRepository.currency.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = "USD"
+    )
+
+    val uiState: StateFlow<DashboardUiState> = _selectedMonth
+        .flatMapLatest { month ->
+            // combine with both `_today` and `currency` so the screen reflects
+            // either change without requiring a month flip or a process restart.
+            combine(
+                getDashboardSummary(month, _today.value, "$currency"),
+                currency
+            ) { summary, ccy -> summary to ccy }
+                .mapToUiState()
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = DashboardUiState()
+        )
+
+    private fun kotlinx.coroutines.flow.Flow<Pair<GetDashboardSummaryUseCase.Summary, String>>.mapToUiState() =
+        map { (summary, ccy) ->
+            DashboardUiState(
+                recentTransactions = summary.recentTransactions,
+                spentToday = summary.spentToday,
+                spentThisMonth = summary.spentThisMonth,
+                totalIncome = summary.totalIncome,
+                remaining = summary.remaining,
+                balance = summary.balance,
+                cashBalance = summary.cashBalance,
+                bankBalance = summary.bankBalance,
+                budget = summary.budget,
+                currency = ccy,
+                budgetUsage = summary.budgetUsage,
+                categoryBudgetUsages = summary.categoryBudgetUsages
+            )
+        }
 
     fun nextMonth() {
         _selectedMonth.value = _selectedMonth.value.plusMonths(1)
@@ -51,73 +88,10 @@ class DashboardViewModel @Inject constructor(
         _selectedMonth.value = YearMonth.now()
     }
 
-    val currency = settingsRepository.currency.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        "USD"
-    )
-
-    val uiState: StateFlow<DashboardUiState> = _selectedMonth.flatMapLatest { month ->
-        val monthString = month.toString()
-        combine(
-            expenseRepository.getAllExpenses(),
-            incomeRepository.getAllIncome(),
-            budgetRepository.getBudget(),
-            currency,
-            getCategoryBudgetUsage(monthString)
-        ) { expenses, incomes, budget, currency, categoryBudgetUsages ->
-            val monthExpenses = expenses.filter { it.date.toString().startsWith(monthString) }
-            val monthIncomes = incomes.filter { it.date.toString().startsWith(monthString) }
-
-            val spentThisMonth = monthExpenses.sumOf { it.amount }
-            val totalIncome = monthIncomes.sumOf { it.amount }
-
-            val spentToday = expenses.filter { it.date == today }.sumOf { it.amount }
-
-            val allTransactions = (expenses.map { it.toTransaction() } + incomes.map { it.toTransaction() })
-
-            var cashBalance = 0.0
-            var bankBalance = 0.0
-            var ccBalance = 0.0
-
-            allTransactions.forEach { tx ->
-                val amount = if (tx is Transaction.ExpenseTransaction) -tx.amount else tx.amount
-                val wallet = if (tx is Transaction.ExpenseTransaction) tx.wallet else (tx as Transaction.IncomeTransaction).wallet
-                when (wallet) {
-                    "Cash" -> cashBalance += amount
-                    "Bank" -> bankBalance += amount
-                    "Credit Card" -> ccBalance += amount
-                }
-            }
-
-            val totalBalance = cashBalance + bankBalance + ccBalance
-
-            val recentTransactions = allTransactions
-                .filter { it.date.toString().startsWith(monthString) }
-                .sortedByDescending { it.timestamp }
-                .take(10)
-
-            DashboardUiState(
-                recentTransactions = recentTransactions,
-                spentToday = spentToday,
-                spentThisMonth = spentThisMonth,
-                totalIncome = totalIncome,
-                remaining = budget.monthlyBudget - spentThisMonth,
-                balance = totalBalance,
-                cashBalance = cashBalance,
-                bankBalance = bankBalance,
-                creditCardBalance = ccBalance,
-                budget = budget,
-                currency = currency,
-                budgetUsage = if (budget.monthlyBudget > 0) spentThisMonth / budget.monthlyBudget else 0.0,
-                categoryBudgetUsages = categoryBudgetUsages
-            )
-        }
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        DashboardUiState()
-    )
+    /** Called by the host (Activity) on `ON_RESUME` so midnight/day rollovers are reflected. */
+    fun onResume() {
+        _today.value = LocalDate.now()
+    }
 }
 
 data class DashboardUiState(
@@ -129,7 +103,6 @@ data class DashboardUiState(
     val balance: Double = 0.0,
     val cashBalance: Double = 0.0,
     val bankBalance: Double = 0.0,
-    val creditCardBalance: Double = 0.0,
     val budget: Budget = Budget(),
     val currency: String = "USD",
     val budgetUsage: Double = 0.0,

@@ -1,13 +1,17 @@
 package com.moneytracker.ui.screens.settings
 
 import android.net.Uri
+import android.util.Log
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.moneytracker.R
 import com.moneytracker.data.repository.CategoryBudgetRepository
 import com.moneytracker.data.repository.CategoryRepository
 import com.moneytracker.data.repository.SettingsRepository
 import com.moneytracker.domain.model.Category
 import com.moneytracker.domain.model.CategoryBudget
+import com.moneytracker.notifications.DailySummaryScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,69 +25,50 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val categoryBudgetRepository: CategoryBudgetRepository,
+    private val dailySummaryScheduler: DailySummaryScheduler,
     categoryRepository: CategoryRepository
 ) : ViewModel() {
 
     val currency: StateFlow<String> = settingsRepository.currency.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        "USD"
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = "USD"
     )
-
     val theme: StateFlow<String> = settingsRepository.theme.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        "System"
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = "System"
     )
-
     val locale: StateFlow<String> = settingsRepository.language.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        "system"
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = "system"
     )
-
     val dailySummaryEnabled: StateFlow<Boolean> = settingsRepository.dailySummaryEnabled.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        true
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = true
     )
 
     val categoryBudgets: StateFlow<List<CategoryBudget>> = categoryBudgetRepository.getAll().stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        emptyList()
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = emptyList()
     )
 
     val categories: StateFlow<List<Category>> = categoryRepository.getAllCategories().stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        emptyList()
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = emptyList()
     )
 
     private val _events = MutableSharedFlow<SettingsEvent>()
     val events = _events.asSharedFlow()
 
     fun setCurrency(currency: String) {
-        viewModelScope.launch {
-            settingsRepository.setCurrency(currency)
-        }
+        viewModelScope.launch { settingsRepository.setCurrency(currency) }
     }
 
     fun setTheme(theme: String) {
-        viewModelScope.launch {
-            settingsRepository.setTheme(theme)
-        }
+        viewModelScope.launch { settingsRepository.setTheme(theme) }
     }
 
     fun setLocale(tag: String) {
-        viewModelScope.launch {
-            settingsRepository.setLanguage(tag)
-        }
+        viewModelScope.launch { settingsRepository.setLanguage(tag) }
     }
 
     fun setDailySummaryEnabled(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setDailySummaryEnabled(enabled)
+            if (enabled) dailySummaryScheduler.enable() else dailySummaryScheduler.disable()
         }
     }
 
@@ -94,46 +79,53 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun clearCategoryBudget(categoryId: Int) {
-        viewModelScope.launch {
-            categoryBudgetRepository.delete(categoryId)
-        }
+        viewModelScope.launch { categoryBudgetRepository.delete(categoryId) }
     }
 
     fun exportToCsv(uri: Uri) {
         viewModelScope.launch {
-            try {
+            runOrError(onSuccess = R.string.settings_export_success, onFail = R.string.settings_export_failed) {
                 settingsRepository.exportToCsv(uri)
-                _events.emit(SettingsEvent.ShowMessage("Exported successfully"))
-            } catch (e: Exception) {
-                _events.emit(SettingsEvent.ShowError(e.message ?: "Export failed"))
             }
         }
     }
 
     fun importFromCsv(uri: Uri) {
         viewModelScope.launch {
-            try {
+            runOrError(onSuccess = R.string.settings_import_success, onFail = R.string.settings_import_failed) {
                 settingsRepository.importFromCsv(uri)
-                _events.emit(SettingsEvent.ShowMessage("Imported successfully"))
-            } catch (e: Exception) {
-                _events.emit(SettingsEvent.ShowError(e.message ?: "Import failed"))
             }
         }
     }
 
     fun resetAll() {
         viewModelScope.launch {
-            try {
+            runOrError(onSuccess = R.string.settings_reset_success, onFail = R.string.settings_reset_failed) {
                 settingsRepository.resetAll()
-                _events.emit(SettingsEvent.ShowMessage("All data reset"))
-            } catch (e: Exception) {
-                _events.emit(SettingsEvent.ShowError(e.message ?: "Reset failed"))
             }
         }
     }
 
+    private suspend inline fun runOrError(
+        @StringRes onSuccess: Int,
+        @StringRes onFail: Int,
+        block: () -> Unit
+    ) {
+        try {
+            block()
+            _events.emit(SettingsEvent.ShowMessage(onSuccess))
+        } catch (e: Exception) {
+            Log.w(TAG, "Settings operation failed", e)
+            _events.emit(SettingsEvent.ShowError(onFail))
+        }
+    }
+
     sealed class SettingsEvent {
-        data class ShowMessage(val message: String) : SettingsEvent()
-        data class ShowError(val message: String) : SettingsEvent()
+        data class ShowMessage(@StringRes val messageRes: Int) : SettingsEvent()
+        data class ShowError(@StringRes val messageRes: Int) : SettingsEvent()
+    }
+
+    companion object {
+        private const val TAG = "SettingsViewModel"
     }
 }

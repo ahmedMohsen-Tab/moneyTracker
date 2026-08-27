@@ -21,7 +21,6 @@
     <string name="dashboard_balance_title">Current Balance</string>
     <string name="dashboard_wallet_cash">Cash</string>
     <string name="dashboard_wallet_bank">Bank</string>
-    <string name="dashboard_wallet_card">Card</string>
     <string name="dashboard_spent_today">Spent Today</string>
     <string name="dashboard_spent_this_month">Spent This Month</string>
     <string name="dashboard_remaining">Remaining</string>

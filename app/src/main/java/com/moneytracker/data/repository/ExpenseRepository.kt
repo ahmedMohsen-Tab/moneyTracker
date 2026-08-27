@@ -19,6 +19,14 @@ class ExpenseRepository @Inject constructor(
     fun getAllExpenses(): Flow<List<Expense>> =
         expenseDao.getAll().map { list -> list.map { it.toExpense() } }
 
+    /**
+     * Returns the most recent N expenses (with categories). Prefer this over
+     * [getAllExpenses] when the caller only needs the top of the history — the
+     * underlying SQL LIMIT clause keeps the result set tiny.
+     */
+    fun getRecentExpenses(limit: Int): Flow<List<Expense>> =
+        expenseDao.getRecent(limit).map { list -> list.map { it.toExpense() } }
+
     fun getExpensesByDate(date: LocalDate): Flow<List<Expense>> =
         expenseDao.getByDate(date.toString()).map { list -> list.map { it.toExpense() } }
 
@@ -59,4 +67,10 @@ class ExpenseRepository @Inject constructor(
     suspend fun deleteExpense(expense: Expense) {
         expenseDao.delete(expense.toEntity())
     }
+
+    suspend fun getRecurring(): List<Expense> =
+        expenseDao.getRecurring().map { it.toExpense() }
+
+    suspend fun getLatestInSeries(groupId: String): Expense? =
+        expenseDao.getLatestInSeries(groupId)?.toExpense()
 }

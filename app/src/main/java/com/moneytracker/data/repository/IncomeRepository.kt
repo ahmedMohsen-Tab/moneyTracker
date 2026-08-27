@@ -17,6 +17,14 @@ class IncomeRepository @Inject constructor(
     fun getAllIncome(): Flow<List<Income>> =
         incomeDao.getAll().map { list -> list.map { it.toIncome() } }
 
+    /**
+     * Returns the most recent N incomes. Prefer this over [getAllIncome] when
+     * the caller only needs the top of the history — the underlying SQL LIMIT
+     * clause keeps the result set tiny.
+     */
+    fun getRecentIncome(limit: Int): Flow<List<Income>> =
+        incomeDao.getRecent(limit).map { list -> list.map { it.toIncome() } }
+
     fun getIncomeByMonth(month: String): Flow<List<Income>> =
         incomeDao.getByMonth(month).map { list -> list.map { it.toIncome() } }
 
@@ -36,4 +44,10 @@ class IncomeRepository @Inject constructor(
     suspend fun deleteIncome(income: Income) {
         incomeDao.delete(income.toEntity())
     }
+
+    suspend fun getRecurring(): List<Income> =
+        incomeDao.getRecurring().map { it.toIncome() }
+
+    suspend fun getLatestInSeries(groupId: String): Income? =
+        incomeDao.getLatestInSeries(groupId)?.toIncome()
 }

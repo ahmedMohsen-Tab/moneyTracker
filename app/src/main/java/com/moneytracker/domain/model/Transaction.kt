@@ -3,7 +3,7 @@ package com.moneytracker.domain.model
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.ZoneOffset
+import java.time.ZoneId
 
 sealed class Transaction {
     abstract val id: Long
@@ -41,7 +41,7 @@ fun Expense.toTransaction(): Transaction.ExpenseTransaction = Transaction.Expens
     description = description,
     date = date,
     time = time,
-    timestamp = LocalDateTime.of(date, time).toEpochSecond(ZoneOffset.UTC),
+    timestamp = LocalDateTime.of(date, time).atZone(ZoneId.systemDefault()).toEpochSecond(),
     category = category,
     wallet = wallet
 )
@@ -52,7 +52,7 @@ fun Income.toTransaction(): Transaction.IncomeTransaction = Transaction.IncomeTr
     description = description,
     date = date,
     time = time,
-    timestamp = LocalDateTime.of(date, time).toEpochSecond(ZoneOffset.UTC),
+    timestamp = LocalDateTime.of(date, time).atZone(ZoneId.systemDefault()).toEpochSecond(),
     wallet = wallet
 )
 

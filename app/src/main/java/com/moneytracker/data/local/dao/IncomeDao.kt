@@ -15,6 +15,14 @@ interface IncomeDao {
     @Query("SELECT * FROM incomes ORDER BY timestamp DESC")
     fun getAll(): Flow<List<IncomeEntity>>
 
+    /**
+     * Returns only the most recent N incomes. Used by the dashboard's
+     * "recent transactions" list so we don't materialise the whole history
+     * when we only render a handful of rows.
+     */
+    @Query("SELECT * FROM incomes ORDER BY timestamp DESC LIMIT :limit")
+    fun getRecent(limit: Int): Flow<List<IncomeEntity>>
+
     @Query("SELECT * FROM incomes WHERE date = :date ORDER BY timestamp DESC")
     fun getByDate(date: String): Flow<List<IncomeEntity>>
 
@@ -38,4 +46,10 @@ interface IncomeDao {
 
     @Query("SELECT SUM(amount) FROM incomes WHERE strftime('%Y-%m', date) = :month")
     fun getTotalByMonth(month: String): Flow<Double?>
+
+    @Query("SELECT * FROM incomes WHERE recurrenceRule IS NOT NULL ORDER BY timestamp DESC")
+    suspend fun getRecurring(): List<IncomeEntity>
+
+    @Query("SELECT * FROM incomes WHERE recurrenceGroupId = :groupId ORDER BY date DESC LIMIT 1")
+    suspend fun getLatestInSeries(groupId: String): IncomeEntity?
 }

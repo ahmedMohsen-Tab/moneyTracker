@@ -11,7 +11,7 @@ import com.moneytracker.domain.model.RecurrenceRule
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.ZoneOffset
+import java.time.ZoneId
 
 fun CategoryEntity.toCategory(): Category = Category(
     id = id,
@@ -47,7 +47,11 @@ fun Expense.toEntity(): com.moneytracker.data.local.entity.ExpenseEntity =
         description = description,
         date = date.toString(),
         time = time.toString(),
-        timestamp = LocalDateTime.of(date, time).toEpochSecond(ZoneOffset.UTC),
+        // Use the device's local zone so the epoch second reflects the time the user
+        // actually recorded. Previously UTC was used, which shifted the timestamp
+        // by the user's UTC offset and could push late-evening entries into the
+        // next calendar day when read back.
+        timestamp = LocalDateTime.of(date, time).atZone(ZoneId.systemDefault()).toEpochSecond(),
         wallet = wallet,
         recurrenceRule = recurrenceRule?.encode(),
         recurrenceGroupId = recurrenceGroupId
@@ -70,7 +74,7 @@ fun Income.toEntity(): IncomeEntity = IncomeEntity(
     description = description,
     date = date.toString(),
     time = time.toString(),
-    timestamp = LocalDateTime.of(date, time).toEpochSecond(ZoneOffset.UTC),
+    timestamp = LocalDateTime.of(date, time).atZone(ZoneId.systemDefault()).toEpochSecond(),
     wallet = wallet,
     recurrenceRule = recurrenceRule?.encode(),
     recurrenceGroupId = recurrenceGroupId

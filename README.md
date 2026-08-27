@@ -9,7 +9,7 @@ Money Tracker is a modern Android personal finance app that helps you record exp
 Money Tracker lets you:
 
 - Add and edit expenses and income with categories, dates, times, and wallet types.
-- Track total balance across Cash, Bank, and Credit Card wallets.
+- Track total balance across Cash and Bank wallets.
 - Monitor monthly spending, remaining budget, and daily budget usage.
 - View detailed statistics with charts (line, pie, and bar charts).
 - Search, filter, and manage all transactions in one place.
@@ -41,7 +41,7 @@ Money Tracker lets you:
 
 ### Dashboard
 - Monthly navigation with previous/current/next month controls.
-- Total balance card plus per-wallet summaries (Cash, Bank, Credit Card).
+- Total balance card plus per-wallet summaries (Cash, Bank).
 - Today spent, month spent, and remaining budget overview.
 - Budget usage warnings at 80%, 90%, and 100% thresholds.
 - Recent transactions list with quick edit access.
@@ -53,7 +53,7 @@ Money Tracker lets you:
 - Category dropdown for expenses (10 built-in categories).
 - Optional description.
 - Date and time pickers.
-- Wallet selection: Cash, Bank, or Credit Card.
+- Wallet selection: Cash or Bank.
 - Edit existing expenses by navigating from dashboard or transaction list.
 
 ### Transaction List

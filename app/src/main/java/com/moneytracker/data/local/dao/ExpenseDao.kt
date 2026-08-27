@@ -18,6 +18,15 @@ interface ExpenseDao {
     @Query("SELECT * FROM expenses ORDER BY timestamp DESC")
     fun getAll(): Flow<List<ExpenseWithCategory>>
 
+    /**
+     * Returns only the most recent N expenses (with their categories joined).
+     * Used by the dashboard's "recent transactions" list so we don't materialise
+     * the whole history when we only render 10 rows.
+     */
+    @Transaction
+    @Query("SELECT * FROM expenses ORDER BY timestamp DESC LIMIT :limit")
+    fun getRecent(limit: Int): Flow<List<ExpenseWithCategory>>
+
     @Transaction
     @Query("SELECT * FROM expenses WHERE date = :date ORDER BY timestamp DESC")
     fun getByDate(date: String): Flow<List<ExpenseWithCategory>>
@@ -64,6 +73,14 @@ interface ExpenseDao {
 
     @Query("SELECT categoryId, SUM(amount) as total FROM expenses WHERE strftime('%Y-%m', date) = :month GROUP BY categoryId ORDER BY total DESC LIMIT 1")
     fun getHighestSpendingCategory(month: String): Flow<HighestSpendingCategory?>
+
+    @Transaction
+    @Query("SELECT * FROM expenses WHERE recurrenceRule IS NOT NULL ORDER BY timestamp DESC")
+    suspend fun getRecurring(): List<ExpenseWithCategory>
+
+    @Transaction
+    @Query("SELECT * FROM expenses WHERE recurrenceGroupId = :groupId ORDER BY date DESC LIMIT 1")
+    suspend fun getLatestInSeries(groupId: String): ExpenseWithCategory?
 }
 
 data class HighestSpendingDay(

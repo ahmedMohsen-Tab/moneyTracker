@@ -14,7 +14,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -61,11 +64,11 @@ fun SettingsScreen(
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
-            val message = when (event) {
-                is SettingsViewModel.SettingsEvent.ShowMessage -> event.message
-                is SettingsViewModel.SettingsEvent.ShowError -> event.message
+            val messageRes = when (event) {
+                is SettingsViewModel.SettingsEvent.ShowMessage -> event.messageRes
+                is SettingsViewModel.SettingsEvent.ShowError -> event.messageRes
             }
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(messageRes), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -211,6 +214,7 @@ fun SettingsScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CategoryBudgetsList(
     budgets: List<CategoryBudget>,
@@ -219,61 +223,129 @@ private fun CategoryBudgetsList(
     onSetBudget: (Int, Double) -> Unit,
     onClear: (Int) -> Unit
 ) {
-    val visibleCategories = categories.filter { it.name != "Other" }
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        visibleCategories.forEach { category ->
-            val current = budgets.find { it.categoryId == category.id }
-            var text by remember(current) { mutableStateOf(current?.monthlyLimit?.toString().orEmpty()) }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+    val selectableCategories = categories.filter { it.name != "Other" }
+    // Seed the picker with the first available category so the dropdown isn't blank.
+    var selectedCategory by remember(selectableCategories) {
+        mutableStateOf(selectableCategories.firstOrNull())
+    }
+    // Pre-fill the amount field with the existing budget when its category is picked.
+    var amountText by remember(budgets, selectedCategory) {
+        mutableStateOf(
+            selectedCategory
+                ?.let { cat -> budgets.firstOrNull { it.categoryId == cat.id }?.monthlyLimit }
+                ?.toString()
+                .orEmpty()
+        )
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        // Existing budgets — list once, not per-category rows.
+        if (budgets.isEmpty()) {
+            Text(
+                text = stringResource(R.string.settings_category_budgets_none),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                budgets.forEach { budget ->
+                    val category = selectableCategories.firstOrNull { it.id == budget.categoryId }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = category?.name ?: stringResource(R.string.add_expense_other),
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = formatCurrency(budget.monthlyLimit, budget.currency.ifBlank { currency }),
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        TextButton(onClick = {
+                            // Re-select this category so the picker form pre-fills
+                            // with its current amount for quick editing.
+                            category?.let { selectedCategory = it }
+                            amountText = budget.monthlyLimit.toString()
+                        }) {
+                            Text(stringResource(R.string.add_expense_save))
+                        }
+                        TextButton(onClick = { onClear(budget.categoryId) }) {
+                            Text(stringResource(R.string.category_budget_clear))
+                        }
+                    }
+                }
+            }
+        }
+
+        // Single picker: choose a category, type a monthly limit, save.
+        Text(
+            text = stringResource(R.string.category_budget_set),
+            style = MaterialTheme.typography.bodyMedium
+        )
+        var menuExpanded by remember { mutableStateOf(false) }
+        ExposedDropdownMenuBox(
+            expanded = menuExpanded,
+            onExpandedChange = { menuExpanded = !menuExpanded }
+        ) {
+            OutlinedTextField(
+                value = selectedCategory?.name.orEmpty(),
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(R.string.add_expense_category)) },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuExpanded)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded = menuExpanded,
+                onDismissRequest = { menuExpanded = false }
             ) {
-                Text(category.name, modifier = Modifier.weight(1f))
-                OutlinedTextField(
-                    value = text,
-                    onValueChange = { newValue ->
-                        if (newValue.isEmpty() || newValue.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
-                            text = newValue
+                selectableCategories.forEach { category ->
+                    DropdownMenuItem(
+                        text = { Text(category.name) },
+                        onClick = {
+                            selectedCategory = category
+                            menuExpanded = false
                         }
-                    },
-                    label = { Text(stringResource(R.string.category_budget_set)) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Decimal,
-                        imeAction = ImeAction.Done
-                    ),
-                    modifier = Modifier.weight(1f)
-                )
-                TextButton(
-                    onClick = {
-                        val v = text.toDoubleOrNull()
-                        if (v != null && v > 0) {
-                            onSetBudget(category.id, v)
-                        } else {
-                            onClear(category.id)
-                            text = ""
-                        }
-                    }
-                ) {
-                    Text(stringResource(R.string.add_expense_save))
-                }
-                if (current != null) {
-                    TextButton(onClick = {
-                        onClear(category.id)
-                        text = ""
-                    }) {
-                        Text(stringResource(R.string.category_budget_clear))
-                    }
+                    )
                 }
             }
-            if (current != null) {
-                Text(
-                    text = "${formatCurrency(current.monthlyLimit, currency)}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+        }
+
+        OutlinedTextField(
+            value = amountText,
+            onValueChange = { newValue ->
+                if (newValue.isEmpty() || newValue.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
+                    amountText = newValue
+                }
+            },
+            label = { Text(stringResource(R.string.category_budget_set)) },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Decimal,
+                imeAction = ImeAction.Done
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Button(
+            onClick = {
+                val cat = selectedCategory ?: return@Button
+                val v = amountText.toDoubleOrNull()
+                if (v != null && v > 0) {
+                    onSetBudget(cat.id, v)
+                    amountText = ""
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(stringResource(R.string.add_expense_save))
         }
     }
 }

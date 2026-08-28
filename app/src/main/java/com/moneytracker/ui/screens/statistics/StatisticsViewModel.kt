@@ -75,8 +75,18 @@ class StatisticsViewModel @Inject constructor(
             initialValue = StatisticsUiState()
         )
 
+    /**
+     * Re-anchor `_today` only when the actual day has changed. Without this
+     * guard, attaching the lifecycle observer (which fires ON_RESUME
+     * immediately on add, because the lifecycle is already at RESUMED when
+     * the screen mounts) would trigger a `_today` update on every tab
+     * switch, which restarts the upstream `combine`, which makes MPAndroidChart
+     * re-paint all three charts on top of their first-paint — a major
+     * source of jank on tab navigation.
+     */
     fun onResume() {
-        _today.value = LocalDate.now()
+        val now = LocalDate.now()
+        if (_today.value != now) _today.value = now
     }
 }
 

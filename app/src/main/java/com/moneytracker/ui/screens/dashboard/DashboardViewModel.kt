@@ -104,9 +104,18 @@ class DashboardViewModel @Inject constructor(
         _selectedMonth.value = YearMonth.now()
     }
 
-    /** Called by the host (Activity) on `ON_RESUME` so midnight/day rollovers are reflected. */
+    /**
+     * Called by the host (Activity) on `ON_RESUME` so midnight/day rollovers
+     * are reflected — but only when the actual day has changed. The
+     * unconditional assignment previously caused a spurious `_today` update
+     * on every tab switch (because the lifecycle observer fires ON_RESUME
+     * immediately on attach), which restarts the dashboard summary's
+     * `combine` and forces a re-paint of the recent transactions list on
+     * top of the first-paint. Gating on actual day-change fixes that.
+     */
     fun onResume() {
-        _today.value = LocalDate.now()
+        val now = LocalDate.now()
+        if (_today.value != now) _today.value = now
     }
 }
 

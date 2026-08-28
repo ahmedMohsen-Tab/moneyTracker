@@ -239,7 +239,10 @@ fun DashboardScreen(
                     }
                 }
             }
-            items(uiState.recentTransactions) { transaction ->
+            // Stable key per transaction so LazyColumn can reuse composition
+            // slots when the list reorders (e.g., a new expense pushing the
+            // others down) instead of tearing down every visible row.
+            items(uiState.recentTransactions, key = { transaction -> transaction.id }) { transaction ->
                 TransactionItem(
                     transaction = transaction,
                     currency = uiState.currency,

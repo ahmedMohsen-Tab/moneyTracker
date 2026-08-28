@@ -10,6 +10,7 @@ package com.moneytracker.ui.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -34,6 +35,27 @@ fun LineChartView(
     data: List<Pair<String, Double>>,
     modifier: Modifier = Modifier
 ) {
+    // Build the dataset once per `data` change at the composable scope and
+    // only invalidate MPAndroidChart when the reference actually differs.
+    // The previous implementation rebuilt the dataset inside `update` and
+    // re-invalidated on every recomposition, which forced a full
+    // measure+layout+draw cycle on every Statistics-tab navigation, even
+    // when the data hadn't changed. The `remember` here is in the
+    // composable scope, so it's allowed; the closure captures it.
+    val lineData = remember(data) {
+        val entries = data.mapIndexed { index, pair ->
+            Entry(index.toFloat(), pair.second.toFloat())
+        }
+        val dataSet = LineDataSet(entries, "Spending").apply {
+            setDrawCircles(true)
+            setDrawValues(false)
+            color = ColorTemplate.getHoloBlue()
+            setCircleColor(ColorTemplate.getHoloBlue())
+            lineWidth = 2f
+        }
+        LineData(dataSet)
+    }
+    val xLabels = remember(data) { data.map { it.first } }
     AndroidView(
         factory = { context ->
             LineChart(context).apply {
@@ -47,19 +69,11 @@ fun LineChartView(
             }
         },
         update = { chart ->
-            val entries = data.mapIndexed { index, pair ->
-                Entry(index.toFloat(), pair.second.toFloat())
+            if (chart.data !== lineData) {
+                chart.xAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
+                chart.data = lineData
+                chart.invalidate()
             }
-            val dataSet = LineDataSet(entries, "Spending").apply {
-                setDrawCircles(true)
-                setDrawValues(false)
-                color = ColorTemplate.getHoloBlue()
-                setCircleColor(ColorTemplate.getHoloBlue())
-                lineWidth = 2f
-            }
-            chart.xAxis.valueFormatter = IndexAxisValueFormatter(data.map { it.first })
-            chart.data = LineData(dataSet)
-            chart.invalidate()
         },
         modifier = modifier
             .fillMaxWidth()
@@ -72,6 +86,15 @@ fun PieChartView(
     data: Map<String, Double>,
     modifier: Modifier = Modifier
 ) {
+    // See LineChartView for the memoisation rationale.
+    val pieData = remember(data) {
+        val entries = data.map { PieEntry(it.value.toFloat(), it.key) }
+        val dataSet = PieDataSet(entries, "").apply {
+            colors = ColorTemplate.MATERIAL_COLORS.toList()
+            valueTextSize = 12f
+        }
+        PieData(dataSet)
+    }
     AndroidView(
         factory = { context ->
             PieChart(context).apply {
@@ -81,13 +104,10 @@ fun PieChartView(
             }
         },
         update = { chart ->
-            val entries = data.map { PieEntry(it.value.toFloat(), it.key) }
-            val dataSet = PieDataSet(entries, "").apply {
-                colors = ColorTemplate.MATERIAL_COLORS.toList()
-                valueTextSize = 12f
+            if (chart.data !== pieData) {
+                chart.data = pieData
+                chart.invalidate()
             }
-            chart.data = PieData(dataSet)
-            chart.invalidate()
         },
         modifier = modifier
             .fillMaxWidth()
@@ -100,6 +120,18 @@ fun BarChartView(
     data: Map<String, Double>,
     modifier: Modifier = Modifier
 ) {
+    // See LineChartView for the memoisation rationale.
+    val barData = remember(data) {
+        val entries = data.entries.mapIndexed { index, pair ->
+            BarEntry(index.toFloat(), pair.value.toFloat())
+        }
+        val dataSet = BarDataSet(entries, "Spending").apply {
+            colors = ColorTemplate.MATERIAL_COLORS.toList()
+            valueTextSize = 12f
+        }
+        BarData(dataSet)
+    }
+    val xLabels = remember(data) { data.keys.toList() }
     AndroidView(
         factory = { context ->
             BarChart(context).apply {
@@ -112,16 +144,11 @@ fun BarChartView(
             }
         },
         update = { chart ->
-            val entries = data.entries.mapIndexed { index, pair ->
-                BarEntry(index.toFloat(), pair.value.toFloat())
+            if (chart.data !== barData) {
+                chart.xAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
+                chart.data = barData
+                chart.invalidate()
             }
-            val dataSet = BarDataSet(entries, "Spending").apply {
-                colors = ColorTemplate.MATERIAL_COLORS.toList()
-                valueTextSize = 12f
-            }
-            chart.xAxis.valueFormatter = IndexAxisValueFormatter(data.keys.toList())
-            chart.data = BarData(dataSet)
-            chart.invalidate()
         },
         modifier = modifier
             .fillMaxWidth()

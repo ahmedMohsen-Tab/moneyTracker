@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.moneytracker.R
 import com.moneytracker.domain.model.Transaction
+import com.moneytracker.domain.model.stableKey
 import com.moneytracker.ui.components.BalanceCard
 import com.moneytracker.ui.components.SummaryCard
 import com.moneytracker.ui.components.TransactionItem
@@ -242,7 +243,15 @@ fun DashboardScreen(
             // Stable key per transaction so LazyColumn can reuse composition
             // slots when the list reorders (e.g., a new expense pushing the
             // others down) instead of tearing down every visible row.
-            items(uiState.recentTransactions, key = { transaction -> transaction.id }) { transaction ->
+            //
+            // Must be type-qualified (see [Transaction.stableKey]) because
+            // expenses and incomes live in separate Room tables with their
+            // own `autoGenerate` id sequences — they are allowed to share
+            // the same numeric id, which previously produced
+            // `IllegalArgumentException: Key "1" was already used` and
+            // crashed the dashboard on first render after the very first
+            // income + expense were inserted.
+            items(uiState.recentTransactions, key = { transaction -> transaction.stableKey() }) { transaction ->
                 TransactionItem(
                     transaction = transaction,
                     currency = uiState.currency,

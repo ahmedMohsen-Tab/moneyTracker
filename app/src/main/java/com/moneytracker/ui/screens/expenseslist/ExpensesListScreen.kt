@@ -53,7 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.moneytracker.R
 import com.moneytracker.domain.model.Transaction
-import com.moneytracker.domain.model.isExpense
+import com.moneytracker.domain.model.stableKey
 import com.moneytracker.ui.components.TransactionItem
 import kotlinx.coroutines.launch
 
@@ -166,7 +166,10 @@ fun ExpensesListScreen(
             ) {
                 items(
                     items = uiState.transactions,
-                    key = { "${it.isExpense()}_${it.id}" }
+                    // Type-qualified key — see [Transaction.stableKey]. The
+                    // expenses and incomes tables have independent id
+                    // sequences, so a raw `it.id` can collide across types.
+                    key = { it.stableKey() }
                 ) { transaction ->
                     val messageText = stringResource(R.string.transactions_deleted)
                     val actionText = stringResource(R.string.transactions_undo)

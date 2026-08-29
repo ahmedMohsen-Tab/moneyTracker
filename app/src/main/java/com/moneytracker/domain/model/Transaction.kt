@@ -75,3 +75,28 @@ fun Transaction.displaySign(): String = when (this) {
 
 fun Transaction.isExpense(): Boolean = this is Transaction.ExpenseTransaction
 fun Transaction.isIncome(): Boolean = this is Transaction.IncomeTransaction
+
+/**
+ * Globally-unique key for use in Compose `LazyColumn`/`LazyRow` `items(..., key = ...)`
+ * calls.
+ *
+ * Why this exists: expenses and incomes each get their `id` from a separate
+ * Room table with its own `autoGenerate` sequence, so an expense and an income
+ * are allowed to share the same numeric id. Once both flows are merged into a
+ * single `recentTransactions` list, passing just `id` as the key produced
+ *
+ *     java.lang.IllegalArgumentException:
+ *         Key "1" was already used. If you are using LazyColumn/Row
+ *         please make sure you provide a unique key for each item.
+ *
+ * and the dashboard crashed on the very next render. The `when` on the sealed
+ * class means a future transaction subtype is a compile error here until it
+ * gets a unique key prefix — so this bug can't be reintroduced silently.
+ *
+ * The prefix `expense_` / `income_` also keeps the key stable across runs
+ * (e.g. for `rememberSaveable` state inside the row composables).
+ */
+fun Transaction.stableKey(): String = when (this) {
+    is Transaction.ExpenseTransaction -> "expense_$id"
+    is Transaction.IncomeTransaction -> "income_$id"
+}
